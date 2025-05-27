@@ -42,5 +42,4 @@ class LLMProvider:
             else:
                 return response
         else:
-            # TODO：其他LLM Provider请自行实现
-            raise NotImplementedError("Only support openailike provider now.")
+            pass

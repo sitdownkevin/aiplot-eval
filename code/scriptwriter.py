@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from code.config import Config
 from code.llm import LLMProvider
-
+from code.langchain.NextSceneInformation import NextSceneInformationLLM
 
 class BaseScriptwriterAgent(ABC):
     def __init__(
@@ -12,6 +12,8 @@ class BaseScriptwriterAgent(ABC):
     ):
         self._llm_model = llm_model
         self._llm_provider = LLMProvider(provider=llm_provider)
+        
+        self.next_scene_information_llm = NextSceneInformationLLM()
 
     async def gen_new_full_script(self) -> dict:
         """
@@ -29,26 +31,8 @@ class BaseScriptwriterAgent(ABC):
 
 class ScriptwriterAgent(BaseScriptwriterAgent):
     async def gen_new_scene_script(self, script=None, gamelog=None):
-        ###########################################################
-        # 请在此处自行实现生成一幕新场景剧本的逻辑，并返回生成的剧本
-        # 剧本格式必须与提供的测试剧本格式一致，否则将无法正常运行
         # script 为当前游戏剧本
         # gamelog 为当前玩家的游戏日志，包含历史剧情、历史交互、历史线索、历史提示等信息，即["plot_history", "clue_history", "hint_history", "interaction_history"]
-        # _dummy_gen_new_scene_script 提供一个示例
-        ###########################################################
-
-        # print("================================================")
-        # print("script", script)
-
-        # for k, v in gamelog.items():
-        #     assert k in [
-        #         "plot_history",
-        #         "clue_history",
-        #         "hint_history",
-        #         "interaction_history",
-        #     ]
-        #     print(k, v)
-        # print("================================================")
         
         next_scene_title = "场景老王烧饼铺"
         next_scene_information = "地点：老王烧饼铺\\n时间：上午十点\\n你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位。"
@@ -75,7 +59,6 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
             }
         }
 
-        # return await self._dummy_gen_new_scene_script(script=script, gamelog=gamelog)
 
     async def _dummy_gen_new_scene_script(self, script=None, gamelog=None):
         await asyncio.sleep(1)
