@@ -4,6 +4,7 @@ from langchain_core.runnables import Runnable
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_openai import ChatOpenAI
+import random
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -29,13 +30,17 @@ class NextSceneInformationLLM:
     def get_output_parser(self):
         response_schemas = [
             ResponseSchema(
-                name="title", description="The title of the scene", type="string"),
+                name="scene_name", description="The name of the scene. Example: 老王烧饼铺.", type="string"),
             ResponseSchema(
-                name="location", description="The location of the scene", type="string"),
+                name="scene_location", description="The location of the scene. Example: 老王烧饼铺.", type="string"),
             ResponseSchema(
-                name="time", description="The time of the scene", type="string"),
+                name="scene_time", description="The time of the scene. Example: 上午十点.", type="string"),
             ResponseSchema(
-                name="description", description="The description of the scene", type="string"),
+                name="scene_description", description="The description of the scene. Example: 你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位.", type="string"),
+            ResponseSchema(
+                name="character_name", description="The character of the scene. Example: 老王.", type="string"),
+            ResponseSchema(
+                name="character_description", description="The description of the character. Example: 隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位.", type="string"),
         ]
         return StructuredOutputParser.from_response_schemas(response_schemas)
 
@@ -50,10 +55,17 @@ class NextSceneInformationLLM:
         <format_instructions>{format_instructions}</format_instructions>
     
         <task>
-        生成一个场景的信息.
+        <goal>
+        基于风格: "潘金莲{scene_style}", 生成一个场景的信息.
+        </goal>
+        
+        <constraints>
+        - 和潘金莲的剧情有关. 
+        - 生成一个全新的角色，新的角色姓"{character_surname}"，人名的风格符合水浒的风格，并且要简单一些.
+        - 生成的场景属于这位新角色，要有水浒风格.
+        - 使用第二人称，对象是潘金莲.
+        </constraints>
         </task>
-    
-        <example></example>
 
         <response_constraints>
         1. Use CHINESE to answer!
@@ -82,7 +94,30 @@ class NextSceneInformationLLM:
 
     async def arun(self):
         try:
-            return await self.chain.ainvoke({})
+            return await self.chain.ainvoke({
+                "scene_style": random.choice([
+                    "被质疑",
+                    "被误解",
+                    "被威胁",
+                    "被欺骗",
+                    "被利用",
+                    "被背叛",
+                    "被伤害",
+                ]),
+                "character_surname": random.choice([
+                    "武",
+                    "林",
+                    "王",
+                    "张",
+                    "李",
+                    "赵",
+                    "孙",
+                    "周",
+                    "吴",
+                    "郑",
+                    "王",
+                ]),
+            })
         except Exception as e:
             print(f"Error: {e}")
             return None

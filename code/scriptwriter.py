@@ -44,20 +44,26 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         next_scene_trigger = {}
         next_scene_ending = "老王的面团被验出砒霜，但在衙役搜查时发现你袖中相同的药包纸，最终两人以互投毒罪收监。"
         
-        return {
-            next_scene_title: {
-                "场景": next_scene_information,
-                "人物": next_scene_characters,
-                "情节链": next_scene_plot_chain,
-                "流": next_scene_stream,
-                "交互": {
-                    "对话": next_scene_interaction_conversation,
-                    "动作选择": next_scene_interaction_action,
-                },
-                "触发": next_scene_trigger,
-                "结局": next_scene_ending,
-            }
-        }
+        # return {
+        #     next_scene_title: {
+        #         "场景": next_scene_information,
+        #         "人物": next_scene_characters,
+        #         "情节链": next_scene_plot_chain,
+        #         "流": next_scene_stream,
+        #         "交互": {
+        #             "对话": next_scene_interaction_conversation,
+        #             "动作选择": next_scene_interaction_action,
+        #         },
+        #         "触发": next_scene_trigger,
+        #     },
+        #     "结局X": next_scene_ending,
+        # }
+        
+        print('!!!!!!!TEST!!!!!!!')
+        print(gamelog)
+        print('!!!!!!!TEST!!!!!!!')
+        
+        return await self._dummy_gen_new_scene_script(script, gamelog)
 
 
     async def _dummy_gen_new_scene_script(self, script=None, gamelog=None):
