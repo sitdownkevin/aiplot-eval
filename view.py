@@ -8,7 +8,7 @@ from lib.drama import DramaAgent
 async def main():
     if "agent" not in st.session_state:
         st.session_state.agent = DramaAgent(
-            script_path=".\script\script_PanJinLian_v2.yml",
+            script_path="./script/script_PanJinLian_v2.yml",
             open_dynamic_script=True,
         )
         st.session_state.api = await st.session_state.agent.init_scene(scene="序章")

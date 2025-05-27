@@ -49,33 +49,8 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         #     ]
         #     print(k, v)
         # print("================================================")
-        
-        next_scene_title = "场景老王烧饼铺"
-        next_scene_information = "地点：老王烧饼铺\\n时间：上午十点\\n你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位。"
-        next_scene_characters = "老王。隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位。"
-        next_scene_plot_chain = []
-        next_scene_stream = {}
-        next_scene_interaction_conversation = []
-        next_scene_interaction_action = []
-        next_scene_trigger = {}
-        next_scene_ending = "老王的面团被验出砒霜，但在衙役搜查时发现你袖中相同的药包纸，最终两人以互投毒罪收监。"
-        
-        return {
-            next_scene_title: {
-                "场景": next_scene_information,
-                "人物": next_scene_characters,
-                "情节链": next_scene_plot_chain,
-                "流": next_scene_stream,
-                "交互": {
-                    "对话": next_scene_interaction_conversation,
-                    "动作选择": next_scene_interaction_action,
-                },
-                "触发": next_scene_trigger,
-                "结局": next_scene_ending,
-            }
-        }
 
-        # return await self._dummy_gen_new_scene_script(script=script, gamelog=gamelog)
+        return await self._dummy_gen_new_scene_script(script=script, gamelog=gamelog)
 
     async def _dummy_gen_new_scene_script(self, script=None, gamelog=None):
         await asyncio.sleep(1)
