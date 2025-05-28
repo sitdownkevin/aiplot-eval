@@ -91,15 +91,14 @@ class SceneChainAndNormEndingLLM:
         
         return ChatPromptTemplate.from_messages(messages)
 
-    def get_prompt(self):
-        output_parser = self.get_output_parser()
+    def get_prompt(self, output_parser):
         return self.base_prompt.partial(
             format_instructions=output_parser.get_format_instructions(),
         )
 
     def get_chain(self):
         output_parser = self.get_output_parser()
-        prompt = self.get_prompt()
+        prompt = self.get_prompt(output_parser)
         return prompt | self.llm | output_parser
 
     async def arun(self, 

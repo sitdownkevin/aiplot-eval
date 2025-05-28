@@ -21,61 +21,45 @@ class SceneStreamByChainLLM:
         self.system_prompt = system_prompt
 
         self.llm = self.get_llm()
-        self.output_parser = self.get_output_parser()
-        self.prompt = self.get_prompt()
-        self.chain = self.get_chain()
+        self.base_prompt = self.get_base_prompt()
 
     def get_llm(self):
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
     def get_output_parser(self):
-        scene_information_schemas = [
-            ResponseSchema(
-                name="TALK_A1",
-                description="The talk of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="TALK_B1",
-                description="The talk of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="TALK_A2",
-                description="The talk of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="TALK_B2",
-                description="The talk of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="TALK_A3",
-                description="The talk of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="TALK_B3",
-                description="The talk of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="KEY_TIP",
-                description="The key tip of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-            ResponseSchema(
-                name="KEY_CLUE",
-                description="The key clue of the scene. Example: 老王烧饼铺.",
-                type="string"
-            ),
-        ]
+        stream_number = random.randint(1, 4)
+
+        scene_information_schemas = []
+        for i in range(1, stream_number+1):
+            scene_information_schemas.extend([
+                ResponseSchema(
+                    name=f"TALK_A{i}",
+                    description="The talk of the scene. Example: 老王烧饼铺.",
+                    type="string"
+                ),
+                ResponseSchema(
+                    name=f"TALK_B{i}",
+                    description="The talk of the scene. Example: 老王烧饼铺.",
+                    type="string"
+                )
+            ])
+
+        # scene_information_schemas.extend([
+        #     ResponseSchema(
+        #         name="KEY_TIP",
+        #         description="The key tip of the scene. Example: 老王烧饼铺.",
+        #         type="string"
+        #     ),
+        #     ResponseSchema(
+        #         name="KEY_CLUE",
+        #         description="The key clue of the scene. Example: 老王烧饼铺.",
+        #         type="string"
+        #     ),
+        # ])
 
         return StructuredOutputParser.from_response_schemas(scene_information_schemas)
 
-
-    def get_prompt(self):
+    def get_base_prompt(self):
         messages = []
 
         if self.system_prompt:
@@ -124,26 +108,29 @@ class SceneStreamByChainLLM:
             human_template)
         messages.append(human_message)
 
-        chat_prompt = ChatPromptTemplate.from_messages(messages)
+        return ChatPromptTemplate.from_messages(messages)
 
-        return chat_prompt.partial(
-            format_instructions=self.output_parser.get_format_instructions(),
+    def get_prompt(self, output_parser):
+        return self.base_prompt.partial(
+            format_instructions=output_parser.get_format_instructions(),
         )
 
     def get_chain(self):
-        return self.prompt | self.llm | self.output_parser
+        output_parser = self.get_output_parser()
+        prompt = self.get_prompt(output_parser)
+        return prompt | self.llm | output_parser
 
-    async def arun(self, 
+    async def arun(self,
                    gamelog,
                    script,
                    scene_information: str,
                    scene_chain: str,
                    next_scene_chain: str) -> SceneStreamByChainSchema:
         retries = 3
-        
+
         for _ in range(retries):
             try:
-                return await self.chain.ainvoke({
+                return await self.get_chain().ainvoke({
                     "gamelog": gamelog,
                     "script": script,
                     "scene_information": scene_information,
@@ -152,7 +139,7 @@ class SceneStreamByChainLLM:
                 })
             except Exception as e:
                 print(f"Error: {e}")
-        
+
         return None
 
 
