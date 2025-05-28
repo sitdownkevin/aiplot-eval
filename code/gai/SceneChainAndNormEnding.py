@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessageP
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-from code.langchain.schema import SceneInformationSchema, SceneChainAndNormEndingSchema, GamelogSchema, ScriptSchema
+from code.gai.schema import SceneInformationSchema, SceneChainAndNormEndingSchema, GamelogSchema, ScriptSchema
 
 
 # --- Configuration Constants ---

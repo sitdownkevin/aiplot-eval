@@ -1,4 +1,4 @@
-from code.langchain.schema import SceneInformationSchema
+from code.gai.schema import SceneStreamByChainSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable
@@ -16,7 +16,7 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
-class SceneInformationLLM:
+class SceneStreamByChainLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
 
@@ -31,33 +31,43 @@ class SceneInformationLLM:
     def get_output_parser(self):
         scene_information_schemas = [
             ResponseSchema(
-                name="scene_name",
-                description="The name of the scene. Example: 老王烧饼铺.",
+                name="TALK_A1",
+                description="The talk of the scene. Example: 老王烧饼铺.",
                 type="string"
             ),
             ResponseSchema(
-                name="scene_location",
-                description="The location of the scene. Example: 老王烧饼铺.",
+                name="TALK_B1",
+                description="The talk of the scene. Example: 老王烧饼铺.",
                 type="string"
             ),
             ResponseSchema(
-                name="scene_time",
-                description="The time of the scene. Example: 上午十点.",
+                name="TALK_A2",
+                description="The talk of the scene. Example: 老王烧饼铺.",
                 type="string"
             ),
             ResponseSchema(
-                name="scene_description",
-                description="The description of the scene. Example: 你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位.",
+                name="TALK_B2",
+                description="The talk of the scene. Example: 老王烧饼铺.",
                 type="string"
             ),
             ResponseSchema(
-                name="character_name",
-                description="The character of the scene. Example: 老王.",
+                name="TALK_A3",
+                description="The talk of the scene. Example: 老王烧饼铺.",
                 type="string"
             ),
             ResponseSchema(
-                name="character_description",
-                description="The description of the character. Example: 隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位.",
+                name="TALK_B3",
+                description="The talk of the scene. Example: 老王烧饼铺.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="KEY_TIP",
+                description="The key tip of the scene. Example: 老王烧饼铺.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="KEY_CLUE",
+                description="The key clue of the scene. Example: 老王烧饼铺.",
                 type="string"
             ),
         ]
@@ -75,18 +85,33 @@ class SceneInformationLLM:
 
         human_template = """
         <format_instructions>{format_instructions}</format_instructions>
+        
+        <game_information>
+        <gamelog>{gamelog}</gamelog>
+        <script>{script}</script>
+        <current_scene_information>{scene_information}</current_scene_information>
+        <current_scene_chain>{scene_chain}</current_scene_chain>
+        <next_scene_chain>{next_scene_chain}</next_scene_chain>
+        </game_information>
     
         <task>
         <goal>
-        基于风格: "潘金莲{scene_style}", 生成一个场景的信息.
+        基于情节链, 生成一个场景的信息.
         </goal>
-        
         <constraints>
         - 和潘金莲的剧情有关. 
-        - 生成一个全新的角色，新的角色姓"{character_surname}"，人名的风格符合水浒的风格，并且要简单一些.
         - 生成的场景属于这位新角色，要有水浒风格.
         - 使用第二人称，对象是潘金莲.
         </constraints>
+        <example>
+        ```
+        "潘金莲试探老王与武大郎的矛盾": [
+            "老王（擦着擀面杖）：武大家的？稀客啊，你家那矮子今天怎舍得让娇妻抛头露面？",
+            "潘金莲：王大哥说笑了，奴家来问问前日您说要买我家祖传和面方子的事...",
+            "关键提示": "老王右手虎口有新鲜抓痕",
+        ]
+        ```
+        </example>
         </task>
 
         <response_constraints>
@@ -108,42 +133,36 @@ class SceneInformationLLM:
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
 
-    async def arun(self, gamelog, script) -> SceneInformationSchema:
-        try:
-            return await self.chain.ainvoke({
-                "scene_style": random.choice([
-                    "被质疑",
-                    "被误解",
-                    "被威胁",
-                    "被欺骗",
-                    "被利用",
-                    "被背叛",
-                    "被伤害",
-                ]),
-                "character_surname": random.choice([
-                    "武",
-                    "林",
-                    "王",
-                    "张",
-                    "李",
-                    "赵",
-                    "孙",
-                    "周",
-                    "吴",
-                    "郑",
-                    "王",
-                ]),
-            })
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+    async def arun(self, 
+                   gamelog,
+                   script,
+                   scene_information: str,
+                   scene_chain: str,
+                   next_scene_chain: str) -> SceneStreamByChainSchema:
+        retries = 3
+        
+        for _ in range(retries):
+            try:
+                return await self.chain.ainvoke({
+                    "gamelog": gamelog,
+                    "script": script,
+                    "scene_information": scene_information,
+                    "scene_chain": scene_chain,
+                    "next_scene_chain": next_scene_chain,
+                })
+            except Exception as e:
+                print(f"Error: {e}")
+        
+        return None
 
 
 async def main():
-    scene_information_llm = SceneInformationLLM(
+    scene_stream_by_chain_llm = SceneStreamByChainLLM(
         system_prompt=None
     )
-    result = await scene_information_llm.arun()
+    result = await scene_stream_by_chain_llm.arun(
+        None, None, None, None, None
+    )
     print(result)
 
 

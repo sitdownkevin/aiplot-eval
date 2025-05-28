@@ -2,9 +2,9 @@ import asyncio
 from abc import ABC, abstractmethod
 from code.config import Config
 from code.llm import LLMProvider
-from code.langchain.SceneInformation import SceneInformationLLM
-from code.langchain.SceneChainAndNormEnding import SceneChainAndNormEndingLLM
-from code.langchain.SceneStreamByChain import SceneStreamByChainLLM
+from code.gai.SceneInformation import SceneInformationLLM
+from code.gai.SceneChainAndNormEnding import SceneChainAndNormEndingLLM
+from code.gai.SceneStreamByChain import SceneStreamByChainLLM
 
 class BaseScriptwriterAgent(ABC):
     def __init__(
@@ -99,3 +99,14 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
                 },
             }
         }
+        
+
+async def main():
+    scriptwriter_agent = ScriptwriterAgent()
+    result = await scriptwriter_agent.gen_new_scene_script()
+    
+    import json
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+if __name__ == "__main__":
+    asyncio.run(main())
