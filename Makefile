@@ -1,5 +1,8 @@
-.PHONY: SceneInformation SceneChainAndNormEnding run
+.PHONY: run SceneInformation SceneChainAndNormEnding SceneStreamByChain SceneInteractionAndTrigger
 
+
+run:
+	PYTHONPATH=$PYTHONPATH:. uv run ./code/scriptwriter.py
 
 SceneInformation:
 	PYTHONPATH=$PYTHONPATH:. uv run ./code/gai/SceneInformation.py
@@ -10,5 +13,5 @@ SceneChainAndNormEnding:
 SceneStreamByChain:
 	PYTHONPATH=$PYTHONPATH:. uv run ./code/gai/SceneStreamByChain.py
 
-run:
-	PYTHONPATH=$PYTHONPATH:. uv run ./code/scriptwriter.py
+SceneInteractionAndTrigger:
+	PYTHONPATH=$PYTHONPATH:. uv run ./code/gai/SceneInteractionAndTrigger.py
