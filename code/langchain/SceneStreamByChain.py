@@ -1,4 +1,4 @@
-from schema import SceneStreamByChainSchema
+from code.langchain.schema import SceneStreamByChainSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable

@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessageP
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-from schema import SceneInformationSchema, SceneChainAndNormEndingSchema, GamelogSchema, ScriptSchema
+from code.langchain.schema import SceneInformationSchema, SceneChainAndNormEndingSchema, GamelogSchema, ScriptSchema
 
 
 # --- Configuration Constants ---
@@ -101,14 +101,6 @@ class SceneChainAndNormEndingLLM:
         output_parser = self.get_output_parser()
         prompt = self.get_prompt()
         return prompt | self.llm | output_parser
-
-    def run(self, next_scene_information: SceneInformationSchema):
-        try:
-            chain = self.get_chain()  # 每次运行时重新生成chain
-            return chain.invoke({})
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
 
     async def arun(self, 
                    gamelog: GamelogSchema,

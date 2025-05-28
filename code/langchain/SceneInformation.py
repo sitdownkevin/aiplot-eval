@@ -1,4 +1,4 @@
-from schema import SceneInformationSchema
+from code.langchain.schema import SceneInformationSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable
@@ -108,7 +108,7 @@ class SceneInformationLLM:
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
 
-    async def arun(self) -> SceneInformationSchema:
+    async def arun(self, gamelog, script) -> SceneInformationSchema:
         try:
             return await self.chain.ainvoke({
                 "scene_style": random.choice([
