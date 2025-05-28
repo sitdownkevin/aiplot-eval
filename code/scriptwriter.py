@@ -68,6 +68,8 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         scene_stream_by_chain = await asyncio.gather(*tasks)
         print(scene_stream_by_chain)
 
+
+
         
         # 填充剧本
         output_scene_name = scene_information["scene_name"]
@@ -106,6 +108,7 @@ async def main():
     result = await scriptwriter_agent.gen_new_scene_script()
     
     import json
+    print('----------- `gen_new_scene_script` result -----------')
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
