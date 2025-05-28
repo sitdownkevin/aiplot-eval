@@ -1,3 +1,4 @@
+from schema import NextSceneInformationSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable
@@ -7,43 +8,6 @@ from langchain_openai import ChatOpenAI
 import random
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-
-from schema import NextSceneInformationSchema
-
-
-# 场景信息的完整模式定义
-SCENE_INFORMATION_SCHEMAS = [
-    ResponseSchema(
-        name="scene_name", 
-        description="The name of the scene. Example: 老王烧饼铺.", 
-        type="string"
-    ),
-    ResponseSchema(
-        name="scene_location", 
-        description="The location of the scene. Example: 老王烧饼铺.", 
-        type="string"
-    ),
-    ResponseSchema(
-        name="scene_time", 
-        description="The time of the scene. Example: 上午十点.", 
-        type="string"
-    ),
-    ResponseSchema(
-        name="scene_description", 
-        description="The description of the scene. Example: 你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位.", 
-        type="string"
-    ),
-    ResponseSchema(
-        name="character_name", 
-        description="The character of the scene. Example: 老王.", 
-        type="string"
-    ),
-    ResponseSchema(
-        name="character_description", 
-        description="The description of the character. Example: 隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位.", 
-        type="string"
-    ),
-]
 
 
 # --- Configuration Constants ---
@@ -55,7 +19,7 @@ DEFAULT_OPENAI_TEMPERATURE = 0.8
 class NextSceneInformationLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
-        
+
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -65,15 +29,50 @@ class NextSceneInformationLLM:
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
     def get_output_parser(self):
-        return StructuredOutputParser.from_response_schemas(SCENE_INFORMATION_SCHEMAS)
+        scene_information_schemas = [
+            ResponseSchema(
+                name="scene_name",
+                description="The name of the scene. Example: 老王烧饼铺.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="scene_location",
+                description="The location of the scene. Example: 老王烧饼铺.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="scene_time",
+                description="The time of the scene. Example: 上午十点.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="scene_description",
+                description="The description of the scene. Example: 你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="character_name",
+                description="The character of the scene. Example: 老王.",
+                type="string"
+            ),
+            ResponseSchema(
+                name="character_description",
+                description="The description of the character. Example: 隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位.",
+                type="string"
+            ),
+        ]
+
+        return StructuredOutputParser.from_response_schemas(scene_information_schemas)
+
 
     def get_prompt(self):
         messages = []
-        
+
         if self.system_prompt:
-            system_template = SystemMessagePromptTemplate.from_template(self.system_prompt)
+            system_template = SystemMessagePromptTemplate.from_template(
+                self.system_prompt)
             messages.append(system_template)
-            
+
         human_template = """
         <format_instructions>{format_instructions}</format_instructions>
     
@@ -95,12 +94,13 @@ class NextSceneInformationLLM:
         2. Return the result in the format of `format_instructions`!
         </response_constraints>
         """
-        
-        human_message = HumanMessagePromptTemplate.from_template(human_template)
+
+        human_message = HumanMessagePromptTemplate.from_template(
+            human_template)
         messages.append(human_message)
-        
+
         chat_prompt = ChatPromptTemplate.from_messages(messages)
-        
+
         return chat_prompt.partial(
             format_instructions=self.output_parser.get_format_instructions(),
         )

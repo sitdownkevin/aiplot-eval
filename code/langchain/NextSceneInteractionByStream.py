@@ -1,9 +1,11 @@
+from schema import NextSceneInformationSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable
 from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_openai import ChatOpenAI
+import random
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
@@ -14,10 +16,10 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
-class NextSceneInformationLLM:
+class NextSceneInteractionByStreamLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
-        
+
         self.llm = self.get_llm()
         self.output_parser = self.get_output_parser()
         self.prompt = self.get_prompt()
@@ -27,45 +29,65 @@ class NextSceneInformationLLM:
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
     def get_output_parser(self):
-        response_schemas = [
+        scene_information_schemas = [
             ResponseSchema(
-                name="title", description="The title of the scene", type="string"),
+                name="action",
+                description="The action of the scene. Example: 潘金莲发现武大郎的尸体后，惊慌失措，大声呼救。",
+                type="string"
+            ),
             ResponseSchema(
-                name="location", description="The location of the scene", type="string"),
-            ResponseSchema(
-                name="time", description="The time of the scene", type="string"),
-            ResponseSchema(
-                name="description", description="The description of the scene", type="string"),
+                name="conversation",
+                description="The conversation of the action. Example: 潘金莲: 武大郎，你为什么死了？",
+                type="string"
+            ),
         ]
-        return StructuredOutputParser.from_response_schemas(response_schemas)
+
+        return StructuredOutputParser.from_response_schemas(scene_information_schemas)
+
 
     def get_prompt(self):
         messages = []
-        
+
         if self.system_prompt:
-            system_template = SystemMessagePromptTemplate.from_template(self.system_prompt)
+            system_template = SystemMessagePromptTemplate.from_template(
+                self.system_prompt)
             messages.append(system_template)
-            
+
         human_template = """
         <format_instructions>{format_instructions}</format_instructions>
+        
+        <game_information>
+            <script>None</script>
+            <gamelog>None</gamelog>
+            <next_scene_information>王大姨的金店</next_scene_information>
+            <next_scene_stream>王大姨发现了潘金莲杀害武大郎的事实</next_scene_stream>
+        </game_information>
     
         <task>
-        生成一个场景的信息.
+        <goal>
+        - 基于`game_information`, 生成一个潘金莲的动作
+        - 基于`game_information`，生成可能的语义.
+        </goal>
+        
+        <constraints>
+        - 和潘金莲的剧情有关. 
+        - 生成的场景属于这位新角色，要有水浒风格.
+        - 使用第三人称，对象是潘金莲.
+        </constraints>
         </task>
-    
-        <example></example>
 
         <response_constraints>
         1. Use CHINESE to answer!
         2. Return the result in the format of `format_instructions`!
         </response_constraints>
         """
-        
-        human_message = HumanMessagePromptTemplate.from_template(human_template)
+
+        human_message = HumanMessagePromptTemplate.from_template(
+            human_template)
         messages.append(human_message)
-        
+
         chat_prompt = ChatPromptTemplate.from_messages(messages)
-        
+
         return chat_prompt.partial(
             format_instructions=self.output_parser.get_format_instructions(),
         )
@@ -73,26 +95,23 @@ class NextSceneInformationLLM:
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
 
-    def run(self):
-        try:
-            return self.chain.invoke({})
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
-
     async def arun(self):
-        try:
-            return await self.chain.ainvoke({})
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
+        retries = 3
+
+        for _ in range(retries):
+            try:
+                return await self.chain.ainvoke({})
+            except Exception as e:
+                print(f"Error: {e}")
+
+        return None
 
 
 async def main():
-    next_scene_information_llm = NextSceneInformationLLM(
+    next_scene_interaction_by_stream_llm = NextSceneInteractionByStreamLLM(
         system_prompt=None
     )
-    result = await next_scene_information_llm.arun()
+    result = await next_scene_interaction_by_stream_llm.arun()
     print(result)
 
 
