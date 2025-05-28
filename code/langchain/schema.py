@@ -11,7 +11,7 @@ class GamelogSchema(TypedDict):
     interaction_history: List[str]
 
 
-class NextSceneInformationSchema(TypedDict):
+class SceneInformationSchema(TypedDict):
     scene_name: str
     scene_location: str
     scene_time: str
@@ -20,11 +20,22 @@ class NextSceneInformationSchema(TypedDict):
     character_description: str
     
 
-class NextSceneStreamAndNormEndingSchema(TypedDict):
-    stream_a: str
-    stream_b: str
-    stream_c: str
-    stream_d: str
-    stream_e: Optional[str]
-    stream_f: Optional[str]
-    ending: str
+class SceneChainAndNormEndingSchema(TypedDict):
+    CHAIN_A: str
+    chain_b: str
+    chain_c: str
+    CHAIN_D: str
+    CHAIN_E: Optional[str]
+    CHAIN_F: Optional[str]
+    ENDING: str
+    
+
+class SceneStreamByChainSchema(TypedDict):
+    TALK_A1: str
+    TALK_B1: str
+    TALK_A2: Optional[str]
+    TALK_B2: Optional[str]
+    TALK_A3: Optional[str]
+    TALK_B3: Optional[str]
+    KEY_TIP: Optional[str]
+    KEY_CLUE: Optional[str]

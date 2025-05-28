@@ -1,4 +1,4 @@
-from schema import NextSceneInformationSchema
+from schema import SceneInformationSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable
@@ -16,7 +16,7 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
-class NextSceneInformationLLM:
+class SceneInformationLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
 
@@ -108,14 +108,7 @@ class NextSceneInformationLLM:
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
 
-    def run(self) -> NextSceneInformationSchema:
-        try:
-            return self.chain.invoke({})
-        except Exception as e:
-            print(f"Error: {e}")
-            return None
-
-    async def arun(self) -> NextSceneInformationSchema:
+    async def arun(self) -> SceneInformationSchema:
         try:
             return await self.chain.ainvoke({
                 "scene_style": random.choice([
@@ -147,10 +140,10 @@ class NextSceneInformationLLM:
 
 
 async def main():
-    next_scene_information_llm = NextSceneInformationLLM(
+    scene_information_llm = SceneInformationLLM(
         system_prompt=None
     )
-    result = await next_scene_information_llm.arun()
+    result = await scene_information_llm.arun()
     print(result)
 
 

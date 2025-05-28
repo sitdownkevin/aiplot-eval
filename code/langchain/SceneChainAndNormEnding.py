@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessageP
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-from schema import NextSceneInformationSchema, NextSceneStreamAndNormEndingSchema, GamelogSchema, ScriptSchema
+from schema import SceneInformationSchema, SceneChainAndNormEndingSchema, GamelogSchema, ScriptSchema
 
 
 # --- Configuration Constants ---
@@ -16,7 +16,7 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
-class NextSceneStreamAndNormEndingLLM:
+class SceneChainAndNormEndingLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
         self.llm = self.get_llm()
@@ -35,8 +35,8 @@ class NextSceneStreamAndNormEndingLLM:
         # 动态添加STREAM
         for i in range(stream_count):
             stream_schema = ResponseSchema(
-                name=f"STREAM_{chr(65 + i)}", # 使用A, B, C, D, E, F作为后缀
-                description="The stream of the scene.",
+                name=f"CHAIN_{chr(65 + i)}", # 使用A, B, C, D, E, F作为后缀
+                description="The chain of the scene.",
                 type="string"
             )
             response_schemas.append(stream_schema)
@@ -65,14 +65,20 @@ class NextSceneStreamAndNormEndingLLM:
         <game_information>
         <script>{script}</script>
         <gamelog>{gamelog}</gamelog>
-        <next_scene_information>{next_scene_information}</next_scene_information>
+        <current_scene_information>{scene_information}</current_scene_information>
         </game_information>
     
         <task>
         生成一个流和正常的结局的剧本.
         </task>
     
-        <example></example>
+        <example>
+        1. 潘金莲试探老王与武大郎的矛盾
+        2. 老王察觉潘金莲异常神色
+        3. 潘金莲试图用砒霜栽赃老王
+        4. 老王反咬潘金莲通奸之事
+        5. 烧饼铺伙计目击争执
+        </example>
 
         <response_constraints>
         1. Use CHINESE to answer!
@@ -96,7 +102,7 @@ class NextSceneStreamAndNormEndingLLM:
         prompt = self.get_prompt()
         return prompt | self.llm | output_parser
 
-    def run(self, next_scene_information: NextSceneInformationSchema):
+    def run(self, next_scene_information: SceneInformationSchema):
         try:
             chain = self.get_chain()  # 每次运行时重新生成chain
             return chain.invoke({})
@@ -107,14 +113,14 @@ class NextSceneStreamAndNormEndingLLM:
     async def arun(self, 
                    gamelog: GamelogSchema,
                    script: ScriptSchema,
-                   next_scene_information: NextSceneInformationSchema) -> NextSceneStreamAndNormEndingSchema:
+                   scene_information: SceneInformationSchema) -> SceneChainAndNormEndingSchema:
         retries = 3
         
         for _ in range(retries):
             try:
                 chain = self.get_chain()  # 每次运行时重新生成chain
                 return await chain.ainvoke({
-                    'next_scene_information': next_scene_information,
+                    'scene_information': scene_information,
                     'gamelog': gamelog,
                     'script': script,
                 })
@@ -126,10 +132,10 @@ class NextSceneStreamAndNormEndingLLM:
 
 
 async def main():
-    next_scene_stream_and_norm_ending_llm = NextSceneStreamAndNormEndingLLM(
+    scene_chain_and_norm_ending_llm = SceneChainAndNormEndingLLM(
         system_prompt=None
     )
-    result = await next_scene_stream_and_norm_ending_llm.arun(
+    result = await scene_chain_and_norm_ending_llm.arun(
         None, None, None
     )
     print(result)

@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from code.config import Config
 from code.llm import LLMProvider
-from code.langchain.NextSceneInformation import NextSceneInformationLLM
+from code.langchain.SceneInformation import NextSceneInformationLLM
 
 class BaseScriptwriterAgent(ABC):
     def __init__(
