@@ -8,6 +8,43 @@ import random
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
+from schema import NextSceneInformationSchema
+
+
+# 场景信息的完整模式定义
+SCENE_INFORMATION_SCHEMAS = [
+    ResponseSchema(
+        name="scene_name", 
+        description="The name of the scene. Example: 老王烧饼铺.", 
+        type="string"
+    ),
+    ResponseSchema(
+        name="scene_location", 
+        description="The location of the scene. Example: 老王烧饼铺.", 
+        type="string"
+    ),
+    ResponseSchema(
+        name="scene_time", 
+        description="The time of the scene. Example: 上午十点.", 
+        type="string"
+    ),
+    ResponseSchema(
+        name="scene_description", 
+        description="The description of the scene. Example: 你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位.", 
+        type="string"
+    ),
+    ResponseSchema(
+        name="character_name", 
+        description="The character of the scene. Example: 老王.", 
+        type="string"
+    ),
+    ResponseSchema(
+        name="character_description", 
+        description="The description of the character. Example: 隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位.", 
+        type="string"
+    ),
+]
+
 
 # --- Configuration Constants ---
 DEFAULT_OPENAI_MODEL_NAME = os.getenv(
@@ -28,21 +65,7 @@ class NextSceneInformationLLM:
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
     def get_output_parser(self):
-        response_schemas = [
-            ResponseSchema(
-                name="scene_name", description="The name of the scene. Example: 老王烧饼铺.", type="string"),
-            ResponseSchema(
-                name="scene_location", description="The location of the scene. Example: 老王烧饼铺.", type="string"),
-            ResponseSchema(
-                name="scene_time", description="The time of the scene. Example: 上午十点.", type="string"),
-            ResponseSchema(
-                name="scene_description", description="The description of the scene. Example: 你来到隔壁老王的烧饼铺，蒸笼冒着热气却未见武大郎的摊位.", type="string"),
-            ResponseSchema(
-                name="character_name", description="The character of the scene. Example: 老王.", type="string"),
-            ResponseSchema(
-                name="character_description", description="The description of the character. Example: 隔壁老王四十余岁，满脸横肉，手臂有烫伤疤痕。因摊位纠纷与武大郎积怨已久，近日正在争夺早市黄金摊位.", type="string"),
-        ]
-        return StructuredOutputParser.from_response_schemas(response_schemas)
+        return StructuredOutputParser.from_response_schemas(SCENE_INFORMATION_SCHEMAS)
 
     def get_prompt(self):
         messages = []
@@ -85,14 +108,14 @@ class NextSceneInformationLLM:
     def get_chain(self):
         return self.prompt | self.llm | self.output_parser
 
-    def run(self):
+    def run(self) -> NextSceneInformationSchema:
         try:
             return self.chain.invoke({})
         except Exception as e:
             print(f"Error: {e}")
             return None
 
-    async def arun(self):
+    async def arun(self) -> NextSceneInformationSchema:
         try:
             return await self.chain.ainvoke({
                 "scene_style": random.choice([
