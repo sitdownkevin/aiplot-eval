@@ -1,4 +1,4 @@
-.PHONY: SceneInformation SceneChainAndNormEnding
+.PHONY: SceneInformation SceneChainAndNormEnding run
 
 
 SceneInformation:
@@ -10,5 +10,5 @@ SceneChainAndNormEnding:
 SceneStreamByChain:
 	PYTHONPATH=$PYTHONPATH:. uv run ./code/gai/SceneStreamByChain.py
 
-Scriptwriter:
+run:
 	PYTHONPATH=$PYTHONPATH:. uv run ./code/scriptwriter.py
