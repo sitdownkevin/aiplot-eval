@@ -9,4 +9,4 @@ class Round(BaseModel):
 
 
 class SceneStreamByChain(BaseModel):
-    rounds: List[Round] = Field(description="The rounds of the scene. The round of the conversation is 1-3.")
+    rounds: List[Round] = Field(description="The rounds of the scene. The round of the conversation is 1-2.")

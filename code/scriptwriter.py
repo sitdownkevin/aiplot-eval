@@ -59,7 +59,6 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         output_scene_interaction_action = []
         output_scene_trigger = {}
         output_scene_endings = {}
-        output_scene_ending = None
 
         # 生成信息
         # 生成场景信息
