@@ -1,8 +1,5 @@
-from code.gai.schema import SceneStreamByChainSchema
 import os
 import asyncio
-from langchain_core.runnables import Runnable
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema
 from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 from langchain_openai import ChatOpenAI
 import random
@@ -16,50 +13,23 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
+from code.schema.SceneStreamByChain import SceneStreamByChain
+from langchain_core.output_parsers import PydanticOutputParser
+parser = PydanticOutputParser(pydantic_object=SceneStreamByChain)
+
+
 class SceneStreamByChainLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
-
+        
+        self.prompt = self.get_prompt()
         self.llm = self.get_llm()
-        self.base_prompt = self.get_base_prompt()
+        self.chain = self.get_chain()
 
     def get_llm(self):
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
-    def get_output_parser(self):
-        stream_number = random.randint(1, 4)
-
-        scene_information_schemas = []
-        for i in range(1, stream_number+1):
-            scene_information_schemas.extend([
-                ResponseSchema(
-                    name=f"TALK_A{i}",
-                    description="The talk of the scene. Example: 老王烧饼铺.",
-                    type="string"
-                ),
-                ResponseSchema(
-                    name=f"TALK_B{i}",
-                    description="The talk of the scene. Example: 老王烧饼铺.",
-                    type="string"
-                )
-            ])
-
-        # scene_information_schemas.extend([
-        #     ResponseSchema(
-        #         name="KEY_HINT",
-        #         description="The key tip of the scene. Example: 老王烧饼铺.",
-        #         type="string"
-        #     ),
-        #     ResponseSchema(
-        #         name="KEY_CLUE",
-        #         description="The key clue of the scene. Example: 老王烧饼铺.",
-        #         type="string"
-        #     ),
-        # ])
-
-        return StructuredOutputParser.from_response_schemas(scene_information_schemas)
-
-    def get_base_prompt(self):
+    def get_prompt(self):
         messages = []
 
         if self.system_prompt:
@@ -108,24 +78,23 @@ class SceneStreamByChainLLM:
             human_template)
         messages.append(human_message)
 
-        return ChatPromptTemplate.from_messages(messages)
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
 
-    def get_prompt(self, output_parser):
-        return self.base_prompt.partial(
-            format_instructions=output_parser.get_format_instructions(),
+        return chat_prompt.partial(
+            format_instructions=parser.get_format_instructions(),
         )
 
+
     def get_chain(self):
-        output_parser = self.get_output_parser()
-        prompt = self.get_prompt(output_parser)
-        return prompt | self.llm | output_parser
+        return self.prompt | self.llm | parser
+
 
     async def arun(self,
                    gamelog,
                    script,
                    scene_information: str,
                    scene_chain: str,
-                   next_scene_chain: str) -> SceneStreamByChainSchema:
+                   next_scene_chain: str) -> SceneStreamByChain:
         retries = 3
 
         for _ in range(retries):
@@ -140,7 +109,9 @@ class SceneStreamByChainLLM:
             except Exception as e:
                 print(f"Error: {e}")
 
-        return None
+
+        fallback = None
+        return fallback
 
 
 async def main():
@@ -150,8 +121,9 @@ async def main():
     result = await scene_stream_by_chain_llm.arun(
         None, None, None, None, None
     )
-    print(result)
-
+    result = result.model_dump()
+    import json
+    print(json.dumps(result, indent=2, ensure_ascii=False))
 
 if __name__ == "__main__":
     asyncio.run(main())

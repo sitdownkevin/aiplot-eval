@@ -1,4 +1,3 @@
-from code.gai.schema import SceneInformationSchema
 import os
 import asyncio
 from langchain_core.runnables import Runnable
@@ -15,54 +14,23 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
     "OPENAI_MODEL_NAME", "gpt-4.1-mini")
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
+from code.schema.SceneInteractionAndTrigger import SceneInteractionAndTrigger
+from langchain_core.output_parsers import PydanticOutputParser
+parser = PydanticOutputParser(pydantic_object=SceneInteractionAndTrigger)
+
 
 class SceneInteractionAndTriggerLLM:
     def __init__(self, system_prompt: str = None):
         self.system_prompt = system_prompt
 
-        self.base_prompt = self.get_base_prompt()
+        self.prompt = self.get_prompt()
         self.llm = self.get_llm()
+        self.chain = self.get_chain()
 
     def get_llm(self):
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
-    def get_output_parser(self):
-        conversation_number = random.randint(4, 6)
-        action_number = random.randint(4, 6)
-        
-        scene_information_schemas = []
-        for i in range(0, conversation_number):
-            scene_information_schemas.extend([
-                ResponseSchema(
-                    name=f"CONVERSATION_NAME_{chr(65+i)}",
-                    description="The name of the scene. Example: 老王烧饼铺.",
-                    type="string"
-                ),
-                ResponseSchema(
-                    name=f"CONVERSATION_CONDITION_{chr(65+i)}",
-                    description="The name of the scene. Example: 老王烧饼铺.",
-                    type="string"
-                )
-            ])
-            
-        for i in range(0, action_number):
-            scene_information_schemas.extend([
-                ResponseSchema(
-                    name=f"ACTION_NAME_{chr(65+i)}",
-                    description="The name of the scene. Example: 老王烧饼铺.",
-                    type="string"
-                ),
-                ResponseSchema(
-                    name=f"ACTION_CONDITION_{chr(65+i)}",
-                    description="The name of the scene. Example: 老王烧饼铺.",
-                    type="string"
-                )
-            ])
-
-        return StructuredOutputParser.from_response_schemas(scene_information_schemas)
-
-
-    def get_base_prompt(self):
+    def get_prompt(self):
         messages = []
 
         if self.system_prompt:
@@ -72,6 +40,11 @@ class SceneInteractionAndTriggerLLM:
 
         human_template = """
         <format_instructions>{format_instructions}</format_instructions>
+        
+        <game_information>
+        <history_rounds>{history_rounds}</history_rounds>
+        <current_round>{current_round}</current_round>
+        </game_information>
     
         <task>
         <goal>
@@ -94,19 +67,20 @@ class SceneInteractionAndTriggerLLM:
             human_template)
         messages.append(human_message)
 
-        return ChatPromptTemplate.from_messages(messages)
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
 
-    def get_prompt(self, output_parser):
-        return self.base_prompt.partial(
-            format_instructions=output_parser.get_format_instructions(),
+        return chat_prompt.partial(
+            format_instructions=parser.get_format_instructions(),
         )
 
     def get_chain(self):
-        output_parser = self.get_output_parser()
-        prompt = self.get_prompt(output_parser)
-        return prompt | self.llm | output_parser
+        return self.prompt | self.llm | parser
 
-    async def arun(self, gamelog, script) -> SceneInformationSchema:
+    async def arun(self,
+                   gamelog,
+                   script,
+                   history_rounds,
+                   current_round) -> SceneInteractionAndTrigger:
         retries = 3
 
         for _ in range(retries):
@@ -114,12 +88,16 @@ class SceneInteractionAndTriggerLLM:
                 return await self.get_chain().ainvoke({
                     "gamelog": gamelog,
                     "script": script,
+                    "history_rounds": history_rounds,
+                    "current_round": current_round,
                 })
             except Exception as e:
                 print(f"Error: {e}")
                 continue
-            
-        return None
+
+        fallback = None
+
+        return fallback
 
 
 async def main():
@@ -127,9 +105,15 @@ async def main():
         system_prompt=None
     )
     result = await scene_interaction_and_trigger_llm.arun(
-        gamelog={}, 
-        script={})
-    print(result)
+        gamelog={},
+        script={},
+        history_rounds=[],
+        current_round={}
+    )
+
+    result = result.model_dump()
+    import json
+    print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

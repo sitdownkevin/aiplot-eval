@@ -7,7 +7,9 @@ from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessageP
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
-from code.gai.schema import SceneInformationSchema, SceneChainAndNormEndingSchema, GamelogSchema, ScriptSchema
+
+from code.schema.SceneInformation import SceneInformation
+from code.schema.SceneChainAndNormEnding import ChainAndNormEnding
 
 
 # --- Configuration Constants ---
@@ -16,43 +18,25 @@ DEFAULT_OPENAI_MODEL_NAME = os.getenv(
 DEFAULT_OPENAI_TEMPERATURE = 0.8
 
 
+# --- Pydantic Output Parser ---
+from langchain_core.output_parsers import PydanticOutputParser
+parser = PydanticOutputParser(pydantic_object=ChainAndNormEnding)
+
+
 class SceneChainAndNormEndingLLM:
-    def __init__(self, system_prompt: str = None):
+    def __init__(self, system_prompt: str = None, verbose: bool = False):
         self.system_prompt = system_prompt
+        self.verbose = verbose
+
+        self.prompt = self.get_prompt()
         self.llm = self.get_llm()
-        self.base_prompt = self.get_base_prompt()
+        self.chain = self.get_chain()
 
     def get_llm(self):
         return ChatOpenAI(model=DEFAULT_OPENAI_MODEL_NAME, temperature=DEFAULT_OPENAI_TEMPERATURE)
 
-    def get_output_parser(self):
-        # 随机生成4-6之间的数字作为STREAM的数量
-        stream_count = random.randint(4, 6)
-        
-        # 创建基本的response_schemas列表
-        response_schemas = []
-        
-        # 动态添加STREAM
-        for i in range(stream_count):
-            stream_schema = ResponseSchema(
-                name=f"CHAIN_{chr(65 + i)}", # 使用A, B, C, D, E, F作为后缀
-                description="The chain of the scene.",
-                type="string"
-            )
-            response_schemas.append(stream_schema)
-        
-        # 添加ENDING schema
-        response_schemas.append(
-            ResponseSchema(
-                name="ENDING",
-                description="The ending of the script",
-                type="string"
-            )
-        )
-        
-        return StructuredOutputParser.from_response_schemas(response_schemas)
 
-    def get_base_prompt(self):
+    def get_prompt(self):
         messages = []
         
         if self.system_prompt:
@@ -89,22 +73,20 @@ class SceneChainAndNormEndingLLM:
         human_message = HumanMessagePromptTemplate.from_template(human_template)
         messages.append(human_message)
         
-        return ChatPromptTemplate.from_messages(messages)
-
-    def get_prompt(self, output_parser):
-        return self.base_prompt.partial(
-            format_instructions=output_parser.get_format_instructions(),
+        chat_prompt = ChatPromptTemplate.from_messages(messages)
+        
+        return chat_prompt.partial(
+            format_instructions=parser.get_format_instructions(),
         )
 
+
     def get_chain(self):
-        output_parser = self.get_output_parser()
-        prompt = self.get_prompt(output_parser)
-        return prompt | self.llm | output_parser
+        return self.prompt | self.llm | parser
 
     async def arun(self, 
-                   gamelog: GamelogSchema,
-                   script: ScriptSchema,
-                   scene_information: SceneInformationSchema) -> SceneChainAndNormEndingSchema:
+                   gamelog,
+                   script,
+                   scene_information) -> ChainAndNormEnding:
         retries = 3
         
         for _ in range(retries):
@@ -119,20 +101,22 @@ class SceneChainAndNormEndingLLM:
                 print(f"Error: {e}")
                 continue
 
-        return None
+        fallback = None
+        return fallback
 
 
 async def main():
     scene_chain_and_norm_ending_llm = SceneChainAndNormEndingLLM(
-        system_prompt=None
+        system_prompt=None,
+        verbose=True
     )
+    
     result = await scene_chain_and_norm_ending_llm.arun(
         None, None, None
     )
-    print(result)
-    
-    ending = result['ENDING']
-    print(ending)
+    result = result.model_dump()
+    import json
+    print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
