@@ -113,6 +113,8 @@ class SceneInformationLLM:
         try:
             # 创建配置字典（保持原始结构）
             config = {
+                "gamelog":gamelog,
+                "script":script,
                 "basic_topic_setting": random.choice([
                     "复仇",
                     "做买卖赚钱",
