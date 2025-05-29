@@ -70,8 +70,8 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         result = zip(scene_stream_by_chain, chain_todo[:-1])
         for scene_stream, scene in result:
             stream = [v for k, v in scene_stream.items() if "TALK_" in k]
-            if "KEY_TIP" in scene_stream:
-                item = r'{"关键提示":"' + scene_stream["KEY_TIP"] + r'"}'
+            if "KEY_HINT" in scene_stream:
+                item = r'{"关键提示":"' + scene_stream["KEY_HINT"] + r'"}'
                 stream.append(item)
             if "KEY_CLUE" in scene_stream:
                 item = r'{"关键线索":"' + scene_stream["KEY_CLUE"] + r'"}'

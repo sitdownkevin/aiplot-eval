@@ -46,7 +46,7 @@ class SceneStreamByChainLLM:
 
         # scene_information_schemas.extend([
         #     ResponseSchema(
-        #         name="KEY_TIP",
+        #         name="KEY_HINT",
         #         description="The key tip of the scene. Example: 老王烧饼铺.",
         #         type="string"
         #     ),
