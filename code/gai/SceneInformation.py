@@ -181,7 +181,7 @@ class SceneInformationLLM:
 
 async def main():
     scene_information_llm = SceneInformationLLM(
-        system_prompt=None, verbose=True
+        system_prompt=None, verbose=False
     )
 
     # 读取YAML文件内容
