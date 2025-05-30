@@ -43,15 +43,21 @@ class SceneInformationLLM:
     
         <task>
         <goal>
-        基于: "{basic_topic_setting}", 生成一个场景的信息.
-        基于{basic_topic_setting}和{basic_charac_setting}, 生成新角色的`character_description`.
+        1. 生成一个新角色姓名，姓是: "{character_surname}"，起一个中国人名字，符合水浒风格.
+        2. 新角色的身份基础是: {basic_charac_setting}，拥有几个符合{basic_charac_setting}特点的{basic_direction_setting}的性格。基于上述内容，展开生成一个新角色的`character_description`.
+        3. 基于上述内容，为新角色生成一个符合新角色的场景信息，提及"你 (即潘金莲)来到了这个场景".
+        
         </goal>
         
         <constraints>
-        - 和潘金莲的剧情有关.
-        - 生成一个全新的角色，新的角色姓"{character_surname}"，人名的风格符合水浒的风格，并且要简单一些.
-        - 生成的场景属于这位新角色，要有水浒风格.
-        - 使用第二人称，对象是潘金莲.
+        1. 新角色{basic_supernature_setting}.
+        2. 新角色{basic_socialnet_setting}.
+        3. 生成角色的姓必须是: "{character_surname}".
+        4. 生成的场景属于这位新角色，要有水浒风格，绝对不可以是王婆家, 西门庆家和衙门.
+        5. 场景的时间必须是上午十点.
+        6. 场景的地点必须位于是县里，不可以出现现实地名，例如东京.
+        7. `background_description`是从旁白视角向潘金莲进行讲述，直接用第二人称"你"来称呼潘金莲.
+        8. `character_description`从第三人称视角描述.
         </constraints>
         </task>
 
@@ -83,26 +89,23 @@ class SceneInformationLLM:
                 config = {
                     "gamelog": gamelog,
                     "script": script,
-                    "basic_topic_setting": random.choice([
-                        "复仇",
-                        "做买卖赚钱",
-                        "替人办事",
-                        "请人办事",
-                        "陷害某人",
-                        "帮助某人",
-                        "做善事",
-                        "泄愤",
-                        "打劫",
-                        "护送",
-                    ]),
+                    # "basic_topic_setting": random.choice([
+                    #     "复仇",
+                    #     "替人办事",
+                    #     "请人办事",
+                    #     "陷害某人",
+                    #     "帮助某人",
+                    #     "做善事",
+                    #     "泄愤",
+                    #     "打劫",
+                    #     "护送",
+                    # ]),
                     "basic_charac_setting": random.choice([
-                        "好汉",
                         "商贩",
-                        "神鬼",
+                        "鬼魂",
                         "官差",
                         "地痞无赖",
                         "高官",
-                        "皇帝",
                         "道士",
                         "和尚",
                         "农夫渔夫",
@@ -111,6 +114,24 @@ class SceneInformationLLM:
                         "娼妓",
                         "大小姐",
                         "富人",
+                    ]),
+                    "basic_direction_setting": random.choice([
+                        "邪恶",
+                        "正直",
+                    ]),
+                    "basic_supernature_setting": random.choice([
+                        "有超自然能力(例如：会道术, 被武大郎托梦, 会佛法...)，通过这个知道潘金莲用毒药杀害了武大郎",
+                        "不知道潘金莲用毒药杀害了武大郎",
+                    ]),
+                    # "basic_act_setting": random.choice([
+                    #     "妨碍潘金莲脱罪",
+                    #     "帮助潘金莲脱罪",
+                    #     "伤害潘金莲生命",
+                    #     "帮潘金莲逃走",
+                    # ]),
+                    "basic_socialnet_setting": random.choice([
+                        "认识潘金莲，知道她相貌美丽，性格贪婪，做事不择手段。发现潘金莲看起来很着急，像是做了坏事",
+                        "不认识潘金莲，只看得出她相貌美丽，显得很着急",
                     ]),
                     "character_surname": random.choice([
                         "王", "李", "张", "刘", "陈", "杨", "黄", "吴", "赵", "周",
@@ -125,12 +146,17 @@ class SceneInformationLLM:
                         "邵", "万", "钱", "严", "赖", "覃", "洪", "武", "莫", "孔"
                     ]),
                 }
-
+                
                 if self.verbose:
                     print("随机生成配置:")
-                    print(f"主题: {config['basic_topic_setting']}")
                     print(f"角色: {config['basic_charac_setting']}")
+                    print(f"性格: {config['basic_direction_setting']}")
                     print(f"姓氏: {config['character_surname']}")
+                    # print(f"基本目标: {config['basic_topic_setting']}")
+                    # print(f"计划行动: {config['basic_act_setting']}")
+                    print(f"社交情况: {config['basic_socialnet_setting']}")
+                    print(f"超自然: {config['basic_supernature_setting']}")
+                    
 
                 # 保持原始调用方式不变
                 return await self.chain.ainvoke(config)
@@ -155,7 +181,7 @@ class SceneInformationLLM:
 
 async def main():
     scene_information_llm = SceneInformationLLM(
-        system_prompt=None
+        system_prompt=None, verbose=True
     )
 
     # 读取YAML文件内容
