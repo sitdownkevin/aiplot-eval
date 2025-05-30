@@ -54,22 +54,30 @@ class SceneChainAndNormEndingLLM:
     
         <task>
         基于`current_scene_information`中的场景和角色，生成该角色与潘金莲交互的情节链和这个情节链对应的结局.
-        1. 潘金莲首先会询问角色有没有什么忙要帮，以寻找满足动机的机会.
-        2. 角色有符合角色设定的愿望，告诉了潘金莲，询问潘金莲能做什么.
-        3. 潘金莲向角色提出了她将如何帮忙，并说出了她的条件: {player_moti_setting}.
-        4. 以符合角色设定的方式，角色{charac_decision_setting}.
-        5. 结局是最终角色的行动{charac_end_setting}，潘金莲受到了影响.具体描述这个结局.
-        6. 生成潘金莲的一个行动和这个行动导致的结局，这个动作会导致潘金莲{player_end_setting}达成{player_moti_setting}.
+        情节链：
+            1. 潘金莲首先会询问角色有没有什么忙要帮，以寻找满足动机的机会.
+            2. 角色有符合角色设定的愿望，告诉了潘金莲，询问潘金莲能做什么.
+            3. 潘金莲向角色提出了她将如何帮忙，并说出了她的条件: {player_moti_setting}.
+            4. 以符合角色设定的方式，角色{charac_decision_setting}.
+            5. 潘金莲从自身动机出发做出回应.
+        
+        结局：
+            最终角色的行动{charac_end_setting}，潘金莲受到了影响，具体描述这个结局.
+        
+        基于`current_scene_information`中的场景和角色，生成潘金莲的一个行动和这个行动导致的结局.
+        动作 & 结局：
+            该动作会导致潘金莲{player_end_setting}达成{player_moti_setting}.
 
         <constraints>
-        1. 整个情节链只能发生在这个白天.
-        1. 整个情节链和结局必须充分结合`current_scene_information`.
-        2. 角色的行为应该符合设定.
-        3. 不可以额外增加潘金莲的设定，潘金莲只是个平凡的美貌妇女，知道一些市井新闻.
-        4. 潘金莲{player_socialnet_setting}.
-        5. 潘金莲的行为必须符合她的动机：{player_moti_setting}.
-        6. 生成内容全部符合水浒风格.
-        7. 从第三人称视角描述.
+        1. 整个情节链必须发生在这个白天！
+        2. 整个情节链必须发生在这个场景内!
+        3. 整个情节链和结局必须充分结合`current_scene_information`.
+        4. 角色的行为应该符合设定.
+        5. 不可以额外增加潘金莲的设定，潘金莲只是个平凡的美貌妇女，知道一些市井新闻.
+        6. 潘金莲{player_socialnet_setting}.
+        7. 潘金莲的行为必须符合她的动机：{player_moti_setting}.
+        8. 生成内容全部符合水浒风格.
+        9. 从第三人称视角描述.
         </constraints>
         </task>
     
@@ -159,14 +167,10 @@ class SceneChainAndNormEndingLLM:
                     "player_end_setting": random.choice([
                         "成功",
                         "失败",
-                        "部分成功",
-                        "部分失败",
                     ]),
                     "charac_end_setting": random.choice([
                         "成功",
                         "失败",
-                        "部分成功",
-                        "部分失败",
                     ]),
                     
                 })
