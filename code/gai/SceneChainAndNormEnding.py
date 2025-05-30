@@ -69,8 +69,8 @@ class SceneChainAndNormEndingLLM:
             该动作会导致潘金莲{player_end_setting}达成{player_moti_setting}.
 
         <constraints>
-        1. 整个情节链必须发生在这个白天！
-        2. 整个情节链必须发生在这个场景内!
+        1. 整个情节链和动作必须发生在这个白天！
+        2. 整个情节链和动作必须发生在这个场景内!
         3. 整个情节链和结局必须充分结合`current_scene_information`.
         4. 角色的行为应该符合设定.
         5. 不可以额外增加潘金莲的设定，潘金莲只是个平凡的美貌妇女，知道一些市井新闻.
