@@ -1,12 +1,12 @@
 .PHONY: run SceneInformation SceneChainAndNormEnding SceneStreamByChain SceneInteractionAndTrigger
 
-dev:
+test:
 	uv run ./test/test_offline.py
 
 app:
 	uv run streamlit run ./view.py
 
-run:
+dev:
 	PYTHONPATH=$PYTHONPATH:. uv run ./code/scriptwriter.py
 
 SceneInformation:
