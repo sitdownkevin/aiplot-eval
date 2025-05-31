@@ -69,14 +69,50 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         scene_chain_and_norm_ending = scene_chain_and_norm_ending.model_dump()
 
         # 添加 action & action_ending
-        output_scene_interaction_action.append(
-            f"{scene_chain_and_norm_ending['action']}$2")
-        output_scene_endings[f'结局{18+len(output_scene_endings)}'] = {
-            "流": scene_chain_and_norm_ending["action_ending"],
-        }
-        output_scene_trigger[f"{scene_chain_and_norm_ending['action']}$2"] = {
-            "跳转": list(output_scene_endings.keys())[-1],
-        }
+        # output_scene_interaction_action.append(
+        #     f"{scene_chain_and_norm_ending['action']}$2")
+        # output_scene_endings[f'结局{18+len(output_scene_endings)}'] = {
+        #     "流": scene_chain_and_norm_ending["action_ending"],
+        # }
+        # output_scene_trigger[f"{scene_chain_and_norm_ending['action']}$2"] = {
+        #     "跳转": list(output_scene_endings.keys())[-1],
+        # }
+
+        # --- MODIFIED BLOCK START ---
+        # Add actions from the list and the specific ending for the last action.
+        # 'scene_chain_and_norm_ending["action"]' is expected to be a List[str].
+        # 'scene_chain_and_norm_ending["action_ending"]' is the str ending for the *last* action.
+        # Action numbering ($num) will start from $2 for the first action in the list,
+        # then $3 for the second, and so on.
+
+        actions_list_from_llm = scene_chain_and_norm_ending.get('action', []) 
+        single_ending_for_last_action = scene_chain_and_norm_ending.get('action_ending')
+
+        # Iterate through the list of actions provided by the LLM.
+        for i, action_text_item in enumerate(actions_list_from_llm):
+            # Calculate the suffix number for the action string.
+            # Starts from 2 for the first action (index 0 + 2 = 2).
+            action_id_suffix = i + 2 
+            formatted_action_string = f"{action_text_item}${action_id_suffix}"
+            output_scene_interaction_action.append(formatted_action_string)
+
+            # If this is the last action in the list AND a specific ending is provided for it,
+            # then set up its unique ending and the trigger to jump to it.
+            if i == len(actions_list_from_llm) - 1 and single_ending_for_last_action is not None:
+                # Construct the ending key using the original Chinese key "结局" (Ending)
+                # and the established numbering convention.
+                current_ending_key = f'结局{18+len(output_scene_endings)}' 
+                
+                output_scene_endings[current_ending_key] = {
+                    "流": single_ending_for_last_action, # "流" means "stream" or "flow".
+                }
+                
+                # The trigger key is the formatted string of the *last* action.
+                # "跳转" means "jump".
+                output_scene_trigger[formatted_action_string] = {
+                    "跳转": current_ending_key, 
+                }
+        # --- MODIFIED BLOCK END ---
 
         # 添加 norm_ending
         output_scene_endings[f'结局{18+len(output_scene_endings)}'] = {
@@ -140,18 +176,18 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
             None]
         count_intention = 0
         for result, label, key_hint in zip(results_scene_interaction_and_trigger, label_scene_interaction_and_trigger, label_key_hint_scene_interaction_and_trigger):
-            # 添加当前 round 的交互语义
+            # 添加当前 round 的交互语义，从1开始
             data = []
             for i, intention in enumerate(result["intentions"]):
                 data.append(
-                    f'{intention}$语义{count_intention}{f" ({label})" if label else ""}')
+                    f'{intention}$语义{count_intention+1}{f" ({label})" if label else ""}')
 
                 if key_hint:
-                    output_scene_trigger[f"{intention}$语义{count_intention}"] = {
+                    output_scene_trigger[f"{intention}$语义{count_intention+1}"] = {
                         "关键提示": key_hint,
                     }
                 else:
-                    output_scene_trigger[f"{intention}$语义{count_intention}"] = {
+                    output_scene_trigger[f"{intention}$语义{count_intention+1}"] = {
                         "跳转": list(output_scene_endings.keys())[-1],
                     }
 
