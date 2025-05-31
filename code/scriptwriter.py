@@ -68,7 +68,7 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         scene_chain_and_norm_ending = await self.scene_chain_and_norm_ending_llm.arun(gamelog=gamelog, script=script, scene_information=scene_information)
         scene_chain_and_norm_ending = scene_chain_and_norm_ending.model_dump()
 
-        # 添加 action_ending
+        # 添加 action & action_ending
         output_scene_interaction_action.append(
             f"{scene_chain_and_norm_ending['action']}$2")
         output_scene_endings[f'结局{18+len(output_scene_endings)}'] = {
