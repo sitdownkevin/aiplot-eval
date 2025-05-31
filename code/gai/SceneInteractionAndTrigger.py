@@ -104,11 +104,15 @@ async def main():
     scene_interaction_and_trigger_llm = SceneInteractionAndTriggerLLM(
         system_prompt=None
     )
+
+    history_rounds=""
+    current_round=""
+
     result = await scene_interaction_and_trigger_llm.arun(
         gamelog={},
         script={},
-        history_rounds=[],
-        current_round={}
+        history_rounds=history_rounds,
+        current_round=current_round
     )
 
     result = result.model_dump()

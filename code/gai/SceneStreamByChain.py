@@ -103,20 +103,9 @@ class SceneStreamByChainLLM:
                 return await self.get_chain().ainvoke({
                     "gamelog": gamelog,
                     "script": script,
-                    "scene_information": {
-                    "background": {
-                        "name": "周家后院书房",
-                        "location": "县衙东侧周家大院",
-                        "time": "上午十点",
-                        "description": "你来到周家后院书房，朱门深锁，庭院静谧。书房中香炉袅袅，案头摆满符箓和古卷。你（潘金莲）神色慌张，似藏有祸事，周婉璃正坐案前，目光锐利，仿佛已知你所为。"
-                        },
-                    "character": {
-                    "name": "周婉璃",
-                    "description": "周婉璃乃县城望族周家的大小姐，年方十八，天资聪颖而心机深沉。她表面温柔娴淑，实则性格邪魅，心狠手辣，极具控制欲，常以阴谋诡计掌控周遭局势。她精通道术，能梦中托付鬼神之言，曾被武大郎托梦，得知潘金莲用毒害人之密事。对潘金莲的美貌和贪婪心性了然于胸，察觉她近日神色慌乱，疑似已做出不可告人的坏事。"
-                        }
-                    },
-                    "scene_chain": "潘金莲提出帮周婉璃设计计谋，助其除去祸害，但条件是周婉璃必须帮她安排逃往遥远的地方。",
-                    "next_scene_chain": "周婉璃眼神一凛，冷声拒绝潘金莲的条件，心机深沉的她反要借机对潘金莲下狠手，以除后患。",
+                    "scene_information": scene_information,
+                    "scene_chain": scene_chain,
+                    "next_scene_chain": next_scene_chain,
                 })
             except Exception as e:
                 print(f"Error: {e}")
@@ -130,8 +119,24 @@ async def main():
     scene_stream_by_chain_llm = SceneStreamByChainLLM(
         system_prompt=None
     )
+
+    scene_information={
+                    "background": {
+                        "name": "周家后院书房",
+                        "location": "县衙东侧周家大院",
+                        "time": "上午十点",
+                        "description": "你来到周家后院书房，朱门深锁，庭院静谧。书房中香炉袅袅，案头摆满符箓和古卷。你（潘金莲）神色慌张，似藏有祸事，周婉璃正坐案前，目光锐利，仿佛已知你所为。"
+                        },
+                    "character": {
+                    "name": "周婉璃",
+                    "description": "周婉璃乃县城望族周家的大小姐，年方十八，天资聪颖而心机深沉。她表面温柔娴淑，实则性格邪魅，心狠手辣，极具控制欲，常以阴谋诡计掌控周遭局势。她精通道术，能梦中托付鬼神之言，曾被武大郎托梦，得知潘金莲用毒害人之密事。对潘金莲的美貌和贪婪心性了然于胸，察觉她近日神色慌乱，疑似已做出不可告人的坏事。"
+                        }
+                    }
+    scene_chain = "潘金莲提出帮周婉璃设计计谋，助其除去祸害，但条件是周婉璃必须帮她安排逃往遥远的地方。"
+    next_scene_chain= "周婉璃眼神一凛，冷声拒绝潘金莲的条件，心机深沉的她反要借机对潘金莲下狠手，以除后患。"
+
     result = await scene_stream_by_chain_llm.arun(
-        None, None, None, None, None
+        None, None, scene_information = scene_information, scene_chain = scene_chain, next_scene_chain = next_scene_chain
     )
     result = result.model_dump()
     import json

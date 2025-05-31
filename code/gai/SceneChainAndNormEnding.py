@@ -125,20 +125,7 @@ class SceneChainAndNormEndingLLM:
             try:
                 chain = self.get_chain()  # 每次运行时重新生成chain
                 return await chain.ainvoke({
-                    'scene_information': 
-                        {
-                    "background": {
-                        "name": "周家后院书房",
-                        "location": "县衙东侧周家大院",
-                        "time": "上午十点",
-                        "description": "你来到周家后院书房，朱门深锁，庭院静谧。书房中香炉袅袅，案头摆满符箓和古卷。你（潘金莲）神色慌张，似藏有祸事，周婉璃正坐案前，目光锐利，仿佛已知你所为。"
-                        },
-                    "character": {
-                    "name": "周婉璃",
-                    "description": "周婉璃乃县城望族周家的大小姐，年方十八，天资聪颖而心机深沉。她表面温柔娴淑，实则性格邪魅，心狠手辣，极具控制欲，常以阴谋诡计掌控周遭局势。她精通道术，能梦中托付鬼神之言，曾被武大郎托梦，得知潘金莲用毒害人之密事。对潘金莲的美貌和贪婪心性了然于胸，察觉她近日神色慌乱，疑似已做出不可告人的坏事。"
-                        }
-                    }
-                ,
+                    'scene_information': scene_information,
                     'gamelog': gamelog,
                     'script': script,
                     # "basic_topic_setting": random.choice([
@@ -185,11 +172,23 @@ class SceneChainAndNormEndingLLM:
 async def main():
     scene_chain_and_norm_ending_llm = SceneChainAndNormEndingLLM(
         system_prompt=None,
-        verbose=True
+        verbose=False,
     )
-    
+    scene_information= {
+                    "background": {
+                        "name": "周家后院书房",
+                        "location": "县衙东侧周家大院",
+                        "time": "上午十点",
+                        "description": "你来到周家后院书房，朱门深锁，庭院静谧。书房中香炉袅袅，案头摆满符箓和古卷。你（潘金莲）神色慌张，似藏有祸事，周婉璃正坐案前，目光锐利，仿佛已知你所为。"
+                        },
+                    "character": {
+                    "name": "周婉璃",
+                    "description": "周婉璃乃县城望族周家的大小姐，年方十八，天资聪颖而心机深沉。她表面温柔娴淑，实则性格邪魅，心狠手辣，极具控制欲，常以阴谋诡计掌控周遭局势。她精通道术，能梦中托付鬼神之言，曾被武大郎托梦，得知潘金莲用毒害人之密事。对潘金莲的美貌和贪婪心性了然于胸，察觉她近日神色慌乱，疑似已做出不可告人的坏事。"
+                        }
+                    }
+                
     result = await scene_chain_and_norm_ending_llm.arun(
-        None, None, None
+        None, None, scene_information = scene_information
     )
     result = result.model_dump()
     import json
