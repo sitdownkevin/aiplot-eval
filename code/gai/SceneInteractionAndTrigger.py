@@ -48,14 +48,22 @@ class SceneInteractionAndTriggerLLM:
     
         <task>
         <goal>
+        基于`current_round`，生成3个其中潘金莲可能的说话概述，意思相近。
         </goal>
         
         <constraints>
-        - 和潘金莲的剧情有关. 
-        - 生成的场景属于这位新角色，要有水浒风格.
-        - 使用第二人称，对象是潘金莲.
+        1. 生成形式应该是以旁观者视角，描述潘金莲说了什么.
+        2. 3个概述应该非常相似.
         </constraints>
         </task>
+
+        <example>
+        "intentions": [
+            "潘金莲向周婉璃表明愿意帮助她清除祸害，同时请求周婉璃帮忙安排一个远处的逃生之地。",
+            "潘金莲表示自己愿意协助周婉璃除掉祸害，条件是希望周婉璃为她安排一个安全的逃跑地点。",
+            "潘金莲向周婉璃表达了愿意助力清除祸害的意愿，并请求周婉璃帮忙准备逃生的地方。"
+        ]
+        </example>
 
         <response_constraints>
         1. Use CHINESE to answer!
@@ -106,7 +114,11 @@ async def main():
     )
 
     history_rounds=""
-    current_round=""
+    current_round= {
+      "key_hint": "和王婆商量",
+      "npc_talk": "王婆：金莲，什么事情上门呀？",
+      "role_talk": "潘金莲：王婆，我想和你商量一点事。"
+    }
 
     result = await scene_interaction_and_trigger_llm.arun(
         gamelog={},
