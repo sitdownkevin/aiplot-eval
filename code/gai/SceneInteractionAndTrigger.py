@@ -42,7 +42,6 @@ class SceneInteractionAndTriggerLLM:
         <format_instructions>{format_instructions}</format_instructions>
         
         <game_information>
-        <history_rounds>{history_rounds}</history_rounds>
         <current_round>{current_round}</current_round>
         </game_information>
     
@@ -87,7 +86,6 @@ class SceneInteractionAndTriggerLLM:
     async def arun(self,
                    gamelog,
                    script,
-                   history_rounds,
                    current_round) -> SceneInteractionAndTrigger:
         retries = 3
 
@@ -96,7 +94,6 @@ class SceneInteractionAndTriggerLLM:
                 return await self.get_chain().ainvoke({
                     "gamelog": gamelog,
                     "script": script,
-                    "history_rounds": history_rounds,
                     "current_round": current_round,
                 })
             except Exception as e:
@@ -113,7 +110,6 @@ async def main():
         system_prompt=None
     )
 
-    history_rounds=""
     current_round= {
       "key_hint": "和王婆商量",
       "npc_talk": "王婆：金莲，什么事情上门呀？",
@@ -123,7 +119,6 @@ async def main():
     result = await scene_interaction_and_trigger_llm.arun(
         gamelog={},
         script={},
-        history_rounds=history_rounds,
         current_round=current_round
     )
 

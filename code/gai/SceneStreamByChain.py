@@ -41,25 +41,25 @@ class SceneStreamByChainLLM:
         <format_instructions>{format_instructions}</format_instructions>
         
         <game_information>
-        <gamelog>{gamelog}</gamelog>
-        <script>{script}</script>
+        <history_rounds>{history_rounds}</history_rounds>
         <current_scene_information>{scene_information}</current_scene_information>
         <current_scene_chain>{scene_chain}</current_scene_chain>
-        <next_scene_chain>{next_scene_chain}</next_scene_chain>
         </game_information>
     
         <task>
         <goal>
-        基于`current_scene_chain`, 生成2轮符合`current_scene_information`的生动的对话，衔接到`next_scene_chain`.
+        承接`history_rounds`，基于`current_scene_information`，续写2轮符合`current_scene_chain`的内容的生动的对话.
         每轮对话包括：
             1. key_hint: 从潘金莲视角出发，描述她说话的动机.
             2. npc_talk: `scene_information`中的角色发言.
             3. role_talk: 潘金莲发言.
         </goal>
+
         <constraints>
-        1. key_hint必须体现当轮潘金莲说话前的思考. 
-        2. npc_talk和role_talk都以"人名：对话内容"的形式呈现.
-        3. 必须充分遵循`current_scene_information`和`current_scene_chain`的设定.
+        1. 必须和history_rounds保持正确的上下文的逻辑关系！！！
+        2. key_hint必须体现当轮潘金莲说话前的思考. 
+        3. npc_talk和role_talk都以"人名：对话内容"的形式呈现.
+        4. 必须充分遵循`current_scene_information`和`current_scene_chain`的设定.
         </constraints>
         </task>
 
@@ -93,6 +93,7 @@ class SceneStreamByChainLLM:
     async def arun(self,
                    gamelog,
                    script,
+                   history_rounds,
                    scene_information: str,
                    scene_chain: str,
                    next_scene_chain: str) -> SceneStreamByChain:
@@ -103,6 +104,7 @@ class SceneStreamByChainLLM:
                 return await self.get_chain().ainvoke({
                     "gamelog": gamelog,
                     "script": script,
+                    "history_rounds": history_rounds,
                     "scene_information": scene_information,
                     "scene_chain": scene_chain,
                     "next_scene_chain": next_scene_chain,
@@ -134,9 +136,13 @@ async def main():
                     }
     scene_chain = "潘金莲提出帮周婉璃设计计谋，助其除去祸害，但条件是周婉璃必须帮她安排逃往遥远的地方。"
     next_scene_chain= "周婉璃眼神一凛，冷声拒绝潘金莲的条件，心机深沉的她反要借机对潘金莲下狠手，以除后患。"
-
+    history_rounds=""
     result = await scene_stream_by_chain_llm.arun(
-        None, None, scene_information = scene_information, scene_chain = scene_chain, next_scene_chain = next_scene_chain
+        None,
+        None,
+        history_rounds=history_rounds,
+        scene_information = scene_information,
+        scene_chain = scene_chain, next_scene_chain = next_scene_chain
     )
     result = result.model_dump()
     import json

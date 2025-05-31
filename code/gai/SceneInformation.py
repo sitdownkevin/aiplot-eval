@@ -44,7 +44,7 @@ class SceneInformationLLM:
         <task>
         <goal>
         1. 生成一个新角色姓名，姓是: "{character_surname}"，起一个中国人名字，符合水浒风格.
-        2. 新角色的身份基础是: {basic_charac_setting}，拥有几个符合{basic_charac_setting}特点的{basic_direction_setting}的性格。基于上述内容，展开生成一个新角色的`character_description`.
+        2. 新角色的身份基础是: {basic_charac_setting}，拥有几个符合{basic_charac_setting}特点的{basic_direction_setting}。基于上述内容，展开生成一个新角色的`character_description`.
         3. 基于上述内容，为新角色生成一个符合新角色的场景信息，提及"你 (即潘金莲)来到了这个场景".
         
         </goal>
@@ -116,11 +116,10 @@ class SceneInformationLLM:
                         "富人",
                     ]),
                     "basic_direction_setting": random.choice([
-                        "邪恶",
-                        "正直",
+                        "邪恶的性格，认为妻子下毒杀死丈夫没什么",
+                        "正直的性格，认为妻子下毒杀死丈夫是非常邪恶的",
                     ]),
                     "basic_supernature_setting": random.choice([
-                        "有超自然能力(例如：会道术, 被武大郎托梦, 会佛法...)，通过这个知道潘金莲用毒药杀害了武大郎",
                         "不知道潘金莲用毒药杀害了武大郎",
                     ]),
                     # "basic_act_setting": random.choice([

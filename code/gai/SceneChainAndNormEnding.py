@@ -47,42 +47,40 @@ class SceneChainAndNormEndingLLM:
         <format_instructions>{format_instructions}</format_instructions>
         
         <game_information>
-        <script>{script}</script>
-        <gamelog>{gamelog}</gamelog>
-        <current_scene_information>{scene_information}</current_scene_information>
+        <NPC_information>{scene_information}</NPC_information>
         </game_information>
     
         <task>
-        基于`current_scene_information`中的场景和角色，生成该角色与潘金莲交互的情节链和这个情节链对应的结局.
+        基于`NPC_information`中的background和NPC，生成NPC与潘金莲交互的情节链和这个情节链对应的结局.
         情节链：
-            1. 潘金莲首先会询问角色有没有什么忙要帮，以寻找满足动机的机会.
-            2. 角色有符合角色设定的愿望，告诉了潘金莲，询问潘金莲能做什么.
-            3. 潘金莲向角色提出了她将如何帮忙，并说出了她的条件: {player_moti_setting}.
-            4. 以符合角色设定的方式，角色{charac_decision_setting}.
+            1. 潘金莲首先会询问NPC有没有什么忙要帮，以寻找满足动机的机会.
+            2. NPC有符合NPC设定的愿望，告诉了潘金莲，询问潘金莲能做什么.
+            3. 潘金莲向NPC提出了她将如何帮忙，并说出了她的条件: {player_moti_setting}.
+            4. 以符合NPC设定的方式，NPC{charac_decision_setting}.
             5. 潘金莲从自身动机出发做出回应.
         
         结局：
-            最终角色的行动{charac_end_setting}，潘金莲受到了影响，具体描述这个结局.
+            最终NPC的行动{charac_end_setting}，潘金莲受到了影响，具体描述这个结局.
         
-        基于`current_scene_information`中的场景和角色，生成潘金莲的一个行动和这个行动导致的结局.
+        基于`NPC_information`中的background和NPC，生成潘金莲的一个行动和这个行动导致的结局.
 
         动作：
-            生成潘金莲在场景中和角色对话时做的五个动作，前四个动作是潘金莲为做最后一个动作的铺垫.
+            生成潘金莲在background中和NPC对话时做的五个动作，前四个动作是潘金莲为做最后一个动作的铺垫.
 
         结局：    
             最后一个动作会导致潘金莲{player_end_setting}达成{player_moti_setting}.
 
         <constraints>
-        1. 整个情节链和动作必须发生在这个白天！
-        2. 整个情节链和动作必须发生在这个场景内!
-        3. 整个情节链、动作和结局必须逻辑严密，不能凭空出现新概念！
-        4. 整个情节链和结局必须充分结合`current_scene_information`.
+        1. 整个情节链、动作和结局必须逻辑严密，不能凭空出现新概念！！！
+        2. 整个情节链和动作必须发生在这个白天！
+        3. 整个情节链和动作必须发生在这个场景内!
+        4. 整个情节链和结局必须充分结合`NPC_information`.
         5. 动作绝对不可以涉及潘金莲说话！！！
         6. 动作和情节链应该是分开的，没有前后联系.
-        7. 角色的行为应该符合设定.
+        7. NPC的行为应该符合`NPC_information`.
         8. 不可以额外增加潘金莲的设定，潘金莲只是个平凡的美貌妇女，最多知道一些市井新闻.
         9. 潘金莲{player_socialnet_setting}.
-        10. 潘金莲的行为必须符合她的动机：{player_moti_setting}.
+        10. 潘金莲的行为必须符合她的目标：{player_moti_setting}.
         11. 生成内容全部符合水浒风格.
         12. 必须用姓名从第三人称来描述！
         </constraints>
@@ -137,7 +135,7 @@ class SceneChainAndNormEndingLLM:
         for _ in range(retries):
             try:
                 chain = self.get_chain()  # 每次运行时重新生成chain
-                return await chain.ainvoke({
+                config = {
                     'scene_information': scene_information,
                     'gamelog': gamelog,
                     'script': script,
@@ -153,7 +151,7 @@ class SceneChainAndNormEndingLLM:
                         "不认识角色，只能结合角色背景模糊提问角色有没有愿望。角色将愿望告诉了潘金莲",
                     ]),
                     "player_moti_setting": random.choice([
-                        "找人帮她顶下杀害武大郎的罪名",
+                        "让自己不会因杀害丈夫 (即武大郎)被处刑",
                         "逃到遥远的地方",
                     ]),
                     "charac_decision_setting": random.choice([
@@ -162,7 +160,6 @@ class SceneChainAndNormEndingLLM:
                         "同意了潘金莲的条件，但要求更多",
                         "不同意潘金莲的条件",
                         "不同意潘金莲的条件，要求更多",
-                        "不同意潘金莲的条件，要伤害潘金莲",
                     ]),
                     "player_end_setting": random.choice([
                         "成功",
@@ -173,7 +170,20 @@ class SceneChainAndNormEndingLLM:
                         "失败",
                     ]),
                     
-                })
+                }
+
+                if self.verbose:
+                    print("随机生成配置:")
+                    print(f"player_socialnet_setting: {config['player_socialnet_setting']}")
+                    print(f"player_moti_setting: {config['player_moti_setting']}")
+                    print(f"charac_decision_setting: {config['charac_decision_setting']}")
+                    # print(f"基本目标: {config['basic_topic_setting']}")
+                    # print(f"计划行动: {config['basic_act_setting']}")
+                    print(f"player_end_setting: {config['player_end_setting']}")
+                    print(f"charac_end_setting: {config['charac_end_setting']}")
+                return await chain.ainvoke(config)
+            
+
             except Exception as e:
                 print(f"Error: {e}")
                 continue
