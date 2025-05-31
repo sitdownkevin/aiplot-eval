@@ -6,8 +6,8 @@ rem 运行你的程序
 @REM uv run streamlit test/test_offline.py
 @REM uv run view.py
 @REM uv run ./code/gai/SceneInformation.py
-@REM uv run ./code/gai/SceneChainAndNormEnding.py
-uv run ./code/gai/SceneStreamByChain.py
+uv run ./code/gai/SceneChainAndNormEnding.py
+@REM uv run ./code/gai/SceneStreamByChain.py
 @REM uv run ./code/gai/SceneInteractionAndTrigger.py
 @REM uv run ./code/scriptwriter.py
 
