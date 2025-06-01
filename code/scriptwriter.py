@@ -222,9 +222,9 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
                 condition_parts = []
                 
                 # Add previous conversations (full content)
-                for k in range(count_intention):
-                    _cond_string = results_scene_interaction_and_trigger[k]['intentions'][0]
-                    condition_parts.append(f"{_cond_string}${all_semantic_labels_only_id[k]}") # Using '语义X' for condition string
+                # for k in range(count_intention):
+                #     _cond_string = results_scene_interaction_and_trigger[k]['intentions'][0]
+                #     condition_parts.append(f"{_cond_string}${all_semantic_labels_only_id[k]}") # Using '语义X' for condition string
 
                 # # Add negation of all other conversations (full content)
                 # for k_other, other_semantic_id in enumerate(all_semantic_labels_only_id):
@@ -233,14 +233,16 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
                 #         _cond_string = results_scene_interaction_and_trigger[k_other]['intentions'][0]
                 #         condition_parts.append(f"not {_cond_string}${other_semantic_id}")
 
-                condition_string = ""
-                if condition_parts:
-                    condition_string = " and ".join(condition_parts)
-                    condition_string = f" ({condition_string})"
+                # condition_string = ""
+                # if condition_parts:
+                #     condition_string = " and ".join(condition_parts)
+                #     condition_string = f" ({condition_string})"
                 # --- MODIFICATION END (Conversation Logic - Refined) ---
 
-                data.append(
-                    f'{intention}${current_semantic_id}{condition_string}')
+                data.append(### 最大妥协点：无法传入 ()中的出现条件
+                    # f'{intention}${current_semantic_id}{condition_string}'
+                    f'{intention}${current_semantic_id}'
+                    )
 
                 # --- MODIFICATION START (Trigger Logic - Refined) ---
                 # Only the very last semantic dialogue gets a trigger entry to an ending.
@@ -297,6 +299,8 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         for k, v in output_scene_endings.items():
             output[k] = v
 
+        print('-----output-----')
+        print(json.dumps(output, indent=2, ensure_ascii=False))
         return output
 
     def fake(self):
