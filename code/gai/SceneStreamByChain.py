@@ -48,7 +48,7 @@ class SceneStreamByChainLLM:
     
         <task>
         <goal>
-        承接`history_rounds`，基于`current_scene_information`，续写2轮符合`current_scene_chain`的内容的生动的对话.
+        承接`history_rounds`，基于`current_scene_information`，续写一轮符合`current_scene_chain`的内容的生动的对话.
         每轮对话包括：
             1. key_hint: 从潘金莲视角出发，描述她说话的动机.
             2. npc_talk: `scene_information`中的角色发言.
@@ -57,9 +57,10 @@ class SceneStreamByChainLLM:
 
         <constraints>
         1. 必须和history_rounds保持正确的上下文的逻辑关系！！！
-        2. key_hint必须体现当轮潘金莲说话前的思考. 
-        3. npc_talk和role_talk都以"人名：对话内容"的形式呈现.
-        4. 必须充分遵循`current_scene_information`和`current_scene_chain`的设定.
+        2. 只能写一轮对话！！！
+        3. key_hint必须体现当轮潘金莲说话前的思考. 
+        4. npc_talk和role_talk都以"人名：对话内容"的形式呈现.
+        5. 必须充分遵循`current_scene_information`和`current_scene_chain`的设定.
         </constraints>
         </task>
 

@@ -50,14 +50,13 @@ class SceneInformationLLM:
         </goal>
         
         <constraints>
-        1. 新角色{basic_supernature_setting}.
-        2. 新角色{basic_socialnet_setting}.
-        3. 生成角色的姓必须是: "{character_surname}".
-        4. 生成的场景属于这位新角色，要有水浒风格，绝对不可以是王婆家, 西门庆家和衙门.
-        5. 场景的时间必须是上午十点.
-        6. 场景的地点必须位于是县里，不可以出现现实地名，例如东京.
-        7. `background_description`是从旁白视角向潘金莲进行讲述，直接用第二人称"你"来称呼潘金莲.
-        8. `character_description`从第三人称视角描述.
+        1. 新角色{basic_socialnet_setting}.
+        2. 生成角色的姓必须是: "{character_surname}".
+        3. 生成的场景和这位新角色有关，要有水浒风格，绝对不可以是王婆家, 西门庆家和衙门.
+        4. 场景的时间必须是上午十点.
+        5. 场景的地点必须位于是县里，不可以出现现实地名，例如东京.
+        6. `background_description`是从旁白视角向潘金莲进行讲述，直接用第二人称"你"来称呼潘金莲.
+        7. `character_description`从第三人称视角描述.
         </constraints>
         </task>
 
@@ -116,11 +115,8 @@ class SceneInformationLLM:
                         "富人",
                     ]),
                     "basic_direction_setting": random.choice([
-                        "邪恶的性格，认为妻子下毒杀死丈夫没什么",
-                        "正直的性格，认为妻子下毒杀死丈夫是非常邪恶的",
-                    ]),
-                    "basic_supernature_setting": random.choice([
-                        "不知道潘金莲用毒药杀害了武大郎",
+                        "邪恶的性格",
+                        "正直的性格",
                     ]),
                     # "basic_act_setting": random.choice([
                     #     "妨碍潘金莲脱罪",
@@ -154,7 +150,6 @@ class SceneInformationLLM:
                     # print(f"基本目标: {config['basic_topic_setting']}")
                     # print(f"计划行动: {config['basic_act_setting']}")
                     print(f"社交情况: {config['basic_socialnet_setting']}")
-                    print(f"超自然: {config['basic_supernature_setting']}")
                     
 
                 # 保持原始调用方式不变

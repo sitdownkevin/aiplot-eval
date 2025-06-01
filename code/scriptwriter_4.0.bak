@@ -224,14 +224,14 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
                 # Add previous conversations (full content)
                 for k in range(count_intention):
                     _cond_string = results_scene_interaction_and_trigger[k]['intentions'][0]
-                    condition_parts.append(f"{_cond_string}${all_semantic_labels_only_id[k]}") # Using '语义X' for condition string
+                    condition_parts.append(f"not {_cond_string}${all_semantic_labels_only_id[k]}") # Using '语义X' for condition string
 
-                # # Add negation of all other conversations (full content)
-                # for k_other, other_semantic_id in enumerate(all_semantic_labels_only_id):
-                #     # Include 'not' for semantics that are not the current one and not any of the preceding ones
-                #     if k_other != count_intention and k_other >= count_intention: # k_other >= count_intention ensures we negate subsequent ones
-                #         _cond_string = results_scene_interaction_and_trigger[k_other]['intentions'][0]
-                #         condition_parts.append(f"not {_cond_string}${other_semantic_id}")
+                # Add negation of all other conversations (full content)
+                for k_other, other_semantic_id in enumerate(all_semantic_labels_only_id):
+                    # Include 'not' for semantics that are not the current one and not any of the preceding ones
+                    if k_other != count_intention and k_other >= count_intention: # k_other >= count_intention ensures we negate subsequent ones
+                        _cond_string = results_scene_interaction_and_trigger[k_other]['intentions'][0]
+                        condition_parts.append(f"not {_cond_string}${other_semantic_id}")
 
                 condition_string = ""
                 if condition_parts:

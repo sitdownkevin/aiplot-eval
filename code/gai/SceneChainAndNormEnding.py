@@ -83,6 +83,7 @@ class SceneChainAndNormEndingLLM:
         10. 潘金莲的行为必须符合她的目标：{player_moti_setting}.
         11. 生成内容全部符合水浒风格.
         12. 必须用姓名从第三人称来描述！
+        13. 不可以与以下事实相悖：NPC和武大郎的死无关，潘金莲杀害了武大郎.
         </constraints>
         </task>
     
@@ -147,7 +148,7 @@ class SceneChainAndNormEndingLLM:
                     #     "行善",
                     # ]),
                     "player_socialnet_setting": random.choice([
-                        "认识角色，直接说出了角色的愿望，并表示能帮上忙",
+                        "认识角色，快速拉近距离，直接说出了角色的愿望，并表示能帮上忙",
                         "不认识角色，只能结合角色背景模糊提问角色有没有愿望。角色将愿望告诉了潘金莲",
                     ]),
                     "player_moti_setting": random.choice([

@@ -79,6 +79,7 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
         #     "跳转": list(output_scene_endings.keys())[-1],
         # }
 
+        # --- MODIFIED BLOCK START ---
         # Add actions from the list and the specific ending for the last action.
         # 'scene_chain_and_norm_ending["action"]' is expected to be a List[str].
         # 'scene_chain_and_norm_ending["action_ending"]' is the str ending for the *last* action.
@@ -112,12 +113,14 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
                 output_scene_trigger[formatted_action_string] = {
                     "跳转": current_ending_key, 
                 }
+        # --- MODIFIED BLOCK END ---
 
         # 添加 norm_ending
         output_scene_endings[f'结局{18+len(output_scene_endings)}'] = {
             "流": scene_chain_and_norm_ending["norm_ending"],
         }
 
+        # --- MODIFICATION START: Scene Stream Generation (Sequential) ---
         chain_todo = scene_chain_and_norm_ending["chains"] + \
             [scene_chain_and_norm_ending["norm_ending"]]
         
@@ -138,7 +141,9 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
             
             if "rounds" in stream_result_dumped:
                 history_rounds_for_stream.extend(stream_result_dumped["rounds"])
+        # --- MODIFICATION END: Scene Stream Generation (Sequential) ---
 
+        # --- MODIFICATION START: Interaction and Trigger Preparation (Parallel) ---
         tasks_scene_interaction_and_trigger = []
         label_scene_interaction_and_trigger = []
         label_key_hint_scene_interaction_and_trigger = []
@@ -178,82 +183,26 @@ class ScriptwriterAgent(BaseScriptwriterAgent):
 
         label_key_hint_scene_interaction_and_trigger = label_key_hint_scene_interaction_and_trigger[1:] + [
             None]
-        # count_intention = 0
-        # for result, label, key_hint in zip(results_scene_interaction_and_trigger, label_scene_interaction_and_trigger, label_key_hint_scene_interaction_and_trigger):
-        #     data = []
-        #     for i, intention in enumerate(result["intentions"]):
-        #         data.append(
-        #             f'{intention}$语义{count_intention+1}{f" ({label})" if label else ""}')
-
-        #         if key_hint:
-        #             output_scene_trigger[f"{intention}$语义{count_intention+1}"] = {
-        #                 "关键提示": key_hint,
-        #             }
-        #         else:
-        #             output_scene_trigger[f"{intention}$语义{count_intention+1}"] = {
-        #                 "跳转": list(output_scene_endings.keys())[-1],
-        #             }
-
-        #         count_intention += 1
-
-        #     output_scene_interaction_conversation.extend(data)
-                
-        count_intention = 0 
-
-        # Store all generated intentions and their semantic labels for the new conversation logic
-        all_semantic_labels_full_content = [] # Store full semantic content for clarity in 'not' parts
-        all_semantic_labels_only_id = [] # Store only '语义X' for condition string
-        for result in results_scene_interaction_and_trigger:
-            for intention in result["intentions"]:
-                # Construct the full semantic content as it will appear in the final output
-                semantic_full_string = f'{intention}$语义{count_intention + 1}'
-                all_semantic_labels_full_content.append(semantic_full_string)
-                all_semantic_labels_only_id.append(f'语义{count_intention + 1}')
-                count_intention += 1
-        
-        count_intention = 0 # Reset counter for actual modification
-        for i, (result, label, key_hint) in enumerate(zip(results_scene_interaction_and_trigger, label_scene_interaction_and_trigger, label_key_hint_scene_interaction_and_trigger)):
-            
+        count_intention = 0
+        for result, label, key_hint in zip(results_scene_interaction_and_trigger, label_scene_interaction_and_trigger, label_key_hint_scene_interaction_and_trigger):
             data = []
-            for j, intention in enumerate(result["intentions"]):
-                current_semantic_id = f'语义{count_intention + 1}'
-                
-                # --- MODIFICATION START (Conversation Logic - Refined) ---
-                condition_parts = []
-                
-                # Add previous conversations (full content)
-                for k in range(count_intention):
-                    _cond_string = results_scene_interaction_and_trigger[k]['intentions'][0]
-                    condition_parts.append(f"{_cond_string}${all_semantic_labels_only_id[k]}") # Using '语义X' for condition string
-
-                # # Add negation of all other conversations (full content)
-                # for k_other, other_semantic_id in enumerate(all_semantic_labels_only_id):
-                #     # Include 'not' for semantics that are not the current one and not any of the preceding ones
-                #     if k_other != count_intention and k_other >= count_intention: # k_other >= count_intention ensures we negate subsequent ones
-                #         _cond_string = results_scene_interaction_and_trigger[k_other]['intentions'][0]
-                #         condition_parts.append(f"not {_cond_string}${other_semantic_id}")
-
-                condition_string = ""
-                if condition_parts:
-                    condition_string = " and ".join(condition_parts)
-                    condition_string = f" ({condition_string})"
-                # --- MODIFICATION END (Conversation Logic - Refined) ---
-
+            for i, intention in enumerate(result["intentions"]):
                 data.append(
-                    f'{intention}${current_semantic_id}{condition_string}')
+                    f'{intention}$语义{count_intention+1}{f" ({label})" if label else ""}')
 
-                # --- MODIFICATION START (Trigger Logic - Refined) ---
-                # Only the very last semantic dialogue gets a trigger entry to an ending.
-                # Action triggers are handled separately above and remain.
-                if count_intention == len(all_semantic_labels_only_id) - 1:
-                    output_scene_trigger[f"{intention}${current_semantic_id}"] = {
-                        "跳转": list(output_scene_endings.keys())[-1], # Always jump to the last added ending
+                if key_hint:
+                    output_scene_trigger[f"{intention}$语义{count_intention+1}"] = {
+                        "关键提示": key_hint,
                     }
-                # --- MODIFICATION END (Trigger Logic - Refined) ---
+                else:
+                    output_scene_trigger[f"{intention}$语义{count_intention+1}"] = {
+                        "跳转": list(output_scene_endings.keys())[-1],
+                    }
 
                 count_intention += 1
 
             output_scene_interaction_conversation.extend(data)
+        # --- MODIFICATION END: Interaction and Trigger Preparation (Parallel) ---
 
 
         # 填充剧本

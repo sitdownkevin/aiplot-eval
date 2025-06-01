@@ -8,9 +8,9 @@ rem 运行你的程序
 @REM uv run ./code/gai/SceneChainAndNormEnding.py
 @REM uv run ./code/gai/SceneStreamByChain.py
 @REM uv run ./code/gai/SceneInteractionAndTrigger.py
-@REM uv run ./code/scriptwriter.py
+uv run ./code/scriptwriter.py
 @REM uv run test/test_offline.py
-uv run ./code/test_offline_sidestory.py
+@REM uv run ./code/test_offline_sidestory.py
 rem 循环运行程序十次
 @REM for /l %%i in (1,1,1) do (
 @REM     echo running %%i ...
