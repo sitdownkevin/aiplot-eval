@@ -39,7 +39,7 @@ view.py # 交互式demo
 4. 最后，基于历史轮生成每个轮的对话，即SceneInteractionAndTrigger类，包含允许动态数量的intentions，此处为1，即每轮中生成一个对话意图，并行生成
 5. 将上述内容组合为输出
 
-<img src="游戏生成流程图.png" alt="图片描述" style="width: 30%; display: block; margin: 0 auto;" />
+<img src="游戏剧情生成流程图.png" alt="图片描述" style="width: 90%; display: block; margin: 0 auto;" />
 
 ## 注意事项
 尽管我们严格遵循任务要求，准确提供了生成结果，并且着重关注剧本的优化，有以下事项影响了剧本本身，是需要注意的：
