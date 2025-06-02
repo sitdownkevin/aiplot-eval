@@ -36,11 +36,11 @@ view.py # 交互式demo
 1. 首先，生成SceneInformation，描述场景信息和人物信息
 2. 其次，基于SceneInformation生成SceneChainAndNormEnding，其中包含情节链和一系列动作，以及两类结局：对话导致的结局和动作导致的结局 (如注意事项所述，对话结局实际上不被触发)
 3. 基于前述内容，生成流。定义了SceneStreamByChain类和Round类，前者包含了n个rounds，从而允许动态数量的生成，此处轮数为1，即每个流中潘金莲和NPC来回对话一次。Round的生成需要依赖历史轮内容，以确保上下文一致性
-4. 最后，基于历史轮生成每个轮的对话，即SceneInteractionAndTrigger类，包含允许动态数量的intentions，此处为1，即每轮中生成一个对话意图。并行生成
+4. 最后，基于历史轮生成每个轮的对话，即SceneInteractionAndTrigger类，包含允许动态数量的intentions，此处为1，即每轮中生成一个对话意图，并行生成
 5. 将上述内容组合为输出
 
 生成流程图：
-![生成流程图](潘金莲游戏生成流程图.png)
+![alt text](潘金莲游戏生成流程图.png)
 
 ## 注意事项
 尽管我们严格遵循任务要求，准确提供了生成结果，并且着重关注剧本的优化，有以下事项影响了剧本本身，是需要注意的：
