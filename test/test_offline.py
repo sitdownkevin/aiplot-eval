@@ -26,7 +26,7 @@ async def run_once(retry=3):
     while retry > 0:
         try:
             agent = DramaAgent(
-                script_path="./script/script_PanJinLian_v2.yml",
+                script_path=".\script\script_PanJinLian_v2.yml",
                 open_dynamic_script=True,
             )
             await agent.init_scene(scene="序章")
@@ -86,8 +86,6 @@ async def run_once(retry=3):
                     if api["scene_is_end"]:
                         print("跳转", api["next_scene"])
                         api = await agent.init_scene(scene=api["next_scene"])
-            
-            # Ending
             if agent.next_scene is not None and agent.next_scene.startswith("结局"):
                 agent.log["结局"] = (
                     agent.next_scene + "：" + agent.ending[agent.next_scene]
