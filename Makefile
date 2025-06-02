@@ -1,4 +1,4 @@
-.PHONY: run SceneInformation SceneChainAndNormEnding SceneStreamByChain SceneInteractionAndTrigger
+.PHONY: test app dev SceneInformation SceneChainAndNormEnding SceneStreamByChain SceneInteractionAndTrigger
 
 test:
 	uv run ./test/test_offline.py
