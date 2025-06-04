@@ -52,8 +52,8 @@ view.py # 交互式demo
 我们通过 Plan and Write 的方式依次生成所需内容，以提高剧本的逻辑性，并通过预置设定增加生成的多样性。
 1. 首先，生成 `SceneInformation`，描述场景信息和人物信息
 2. 其次，基于 `SceneInformation` 生成 `SceneChainAndNormEnding`，其中包含情节链和一系列动作，以及两类结局：对话导致的结局和动作导致的结局 (如注意事项所述，对话结局实际上不被触发)
-3. 基于前述内容，生成流。定义了 `SceneStreamByChain` 类和 `Round` 类，前者包含了 n 个 `Round`s，从而允许动态数量的生成，此处轮数为 1，即每个流中潘金莲和 NPC 来回对话一次。`Round` 的生成需要依赖历史轮内容，以确保上下文一致性
-4. 最后，基于历史轮生成每个轮的对话，即 `SceneInteractionAndTrigger` 类，包含允许动态数量的语义（）intentions），此处为1，即每轮中生成一个对话意图，并行生成
+3. 基于前述内容，生成流。定义了 `SceneStreamByChain` 类和 `Round` 类，前者包含了 n 个 `Round`，从而允许动态数量的生成，此处轮数为 1，即每个流中潘金莲和 NPC 来回对话一次。`Round` 的生成需要依赖历史轮内容，以确保上下文一致性
+4. 最后，基于历史轮生成每个轮的对话，即 `SceneInteractionAndTrigger` 类，包含允许动态数量的语义（intentions），此处为1，即每轮中生成一个对话意图，并行生成
 5. 将上述内容组合为输出
 
 ![](docs/游戏剧情生成流程图.png)
