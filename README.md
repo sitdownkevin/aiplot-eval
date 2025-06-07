@@ -25,6 +25,8 @@ view.py # 交互式demo
 ```
 
 ## 使用
+### !IMPORTANT: 请在文件目录中复制.env.examlple为.env，并在其中填写OPENAI_API_KEY和OPENAI_BASE_URL，通过修改OPENAI_MODEL_NAME和OPENAI_MODEL_NAME_SOTA调整调用模型.
+
 1. 安装和配置依赖
     ```bash
     uv sync
